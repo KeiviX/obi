@@ -1,0 +1,12 @@
+/* Orchard UI patches for music.apple.com.
+   Keep selectors few and resilient: Apple can change the markup at any time. */
+
+/* Thinner, quieter scrollbars. */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb {
+  background: rgba(128, 128, 128, 0.35);
+  border-radius: 5px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-track { background: transparent; }
