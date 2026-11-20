@@ -1,7 +1,17 @@
 /// Orchard's own IPC commands. Declaring them here generates `allow-<command>`
-/// permissions, which `capabilities/default.json` grants to music.apple.com.
-/// Tauri blocks every custom command from a remote origin that isn't listed here.
-const COMMANDS: &[&str] = &["log", "now_playing", "playback_state"];
+/// permissions, which the files in `capabilities/` grant per window.
+/// Tauri blocks every custom command that isn't granted.
+const COMMANDS: &[&str] = &[
+    "log",
+    "now_playing",
+    "playback_state",
+    "playback_time",
+    "get_state",
+    "player_control",
+    "window_control",
+    "window_drag",
+    "toggle_mini",
+];
 
 fn main() {
     tauri_build::try_build(

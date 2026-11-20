@@ -2,41 +2,45 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod bridge;
+mod windows;
 
-use tauri::{WebviewUrl, WebviewWindowBuilder};
-
-const APPLE_MUSIC_URL: &str = "https://music.apple.com/";
-const CORE_JS: &str = include_str!("../../inject/core.js");
-const THEME_CSS: &str = include_str!("../../inject/theme.css");
-
-/// Builds the script injected into every page load of music.apple.com:
-/// the stylesheet is handed over as a global, then core.js runs.
-fn init_script() -> String {
-    let css = serde_json::to_string(THEME_CSS).expect("css serializes");
-    format!("window.__ORCHARD_CSS__ = {css};\n{CORE_JS}")
-}
+use tauri::{Manager, WindowEvent};
+use tauri_plugin_window_state::StateFlags;
 
 fn main() {
     tauri::Builder::default()
-        .plugin(tauri_plugin_window_state::Builder::default().build())
+        .plugin(
+            tauri_plugin_window_state::Builder::default()
+                // Never restore a hidden main window (it's hidden while the mini player is open).
+                .with_state_flags(StateFlags::all() & !StateFlags::VISIBLE)
+                .build(),
+        )
         .manage(bridge::PlayerState::default())
         .invoke_handler(tauri::generate_handler![
             bridge::log,
             bridge::now_playing,
             bridge::playback_state,
+            bridge::playback_time,
+            bridge::get_state,
+            bridge::player_control,
+            bridge::window_control,
+            bridge::window_drag,
+            bridge::toggle_mini,
         ])
         .setup(|app| {
-            WebviewWindowBuilder::new(
-                app,
-                "main",
-                WebviewUrl::External(APPLE_MUSIC_URL.parse()?),
-            )
-            .title("Orchard")
-            .inner_size(1280.0, 820.0)
-            .min_inner_size(800.0, 560.0)
-            .initialization_script(init_script())
-            .build()?;
+            windows::create_main(app.handle())?;
             Ok(())
+        })
+        .on_window_event(|window, event| {
+            if let WindowEvent::Destroyed = event {
+                match window.label() {
+                    // Closing the mini player returns to the full window.
+                    windows::MINI => windows::show_main(window.app_handle()),
+                    // Closing the main window quits, even if the mini player is open.
+                    windows::MAIN => window.app_handle().exit(0),
+                    _ => {}
+                }
+            }
         })
         .run(tauri::generate_context!())
         .expect("error while running Orchard");

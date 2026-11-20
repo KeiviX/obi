@@ -1,10 +1,18 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "Lets the injected script on music.apple.com call Orchard's own commands. No filesystem, shell or other plugin access is granted to the remote page.",
+  "description": "Lets the injected script on music.apple.com report playback and drive the frameless window chrome. No filesystem, shell or other plugin access is granted to the remote page.",
   "windows": ["main"],
   "remote": {
     "urls": ["https://music.apple.com", "https://*.music.apple.com"]
   },
-  "permissions": ["allow-log", "allow-now-playing", "allow-playback-state"]
+  "permissions": [
+    "allow-log",
+    "allow-now-playing",
+    "allow-playback-state",
+    "allow-playback-time",
+    "allow-window-control",
+    "allow-window-drag",
+    "allow-toggle-mini"
+  ]
 }

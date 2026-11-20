@@ -1,0 +1,141 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-20T23:55:00Z",
+  "title": "Design System: Orchard",
+  "extensions": {
+    "colorMeta": {
+      "obi-red": { "role": "primary", "displayName": "Obi Red", "canonical": "#d21a2e", "tonalRamp": ["#2e0509", "#520a12", "#7a101b", "#a51525", "#d21a2e", "#e4505f", "#ef8f99", "#f9d2d6"] },
+      "obi-cream": { "role": "primary", "displayName": "Obi Cream", "canonical": "#fff4e8", "tonalRamp": ["#2b241c", "#4d4337", "#706353", "#958671", "#b9aa94", "#d9ccb8", "#efe4d4", "#fff4e8"] },
+      "sleeve-black": { "role": "neutral", "displayName": "Sleeve Black", "canonical": "#141213", "tonalRamp": ["#0c0a0b", "#141213", "#1a1718", "#221e1f", "#2e292a", "#433d3e", "#6b6465", "#a49d9e"] },
+      "sidebar-black": { "role": "neutral", "displayName": "Sidebar Black", "canonical": "#1a1718", "tonalRamp": ["#0c0a0b", "#141213", "#1a1718", "#221e1f", "#2e292a", "#433d3e", "#6b6465", "#a49d9e"] },
+      "raised-black": { "role": "neutral", "displayName": "Raised Black", "canonical": "#221e1f", "tonalRamp": ["#0c0a0b", "#141213", "#1a1718", "#221e1f", "#2e292a", "#433d3e", "#6b6465", "#a49d9e"] },
+      "warm-ink": { "role": "neutral", "displayName": "Warm Ink", "canonical": "#f1ece4", "tonalRamp": ["#2a2722", "#4a463f", "#6c675f", "#8f8a81", "#b2ada4", "#d2cdc4", "#e6e1d9", "#f1ece4"] },
+      "warm-ink-2": { "role": "neutral", "displayName": "Warm Ink 2", "canonical": "rgba(241, 236, 228, 0.68)" },
+      "warm-ink-3": { "role": "neutral", "displayName": "Warm Ink 3", "canonical": "rgba(241, 236, 228, 0.46)" },
+      "hairline": { "role": "neutral", "displayName": "Hairline", "canonical": "rgba(241, 236, 228, 0.09)" },
+      "hover-wash": { "role": "neutral", "displayName": "Hover Wash", "canonical": "rgba(241, 236, 228, 0.06)" },
+      "sleeve-scrim": { "role": "neutral", "displayName": "Sleeve Scrim", "canonical": "rgba(12, 10, 11, 0.58)" },
+      "windows-close-red": { "role": "neutral", "displayName": "Windows Close Red", "canonical": "#c42b1c" }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Apple page titles (header h1), Dela Gothic One 52px, balanced wrap." },
+      "headline": { "displayName": "Headline", "purpose": "Apple shelf titles; Orchard swaps the face and tracking, Apple keeps the size." },
+      "title": { "displayName": "Obi Title", "purpose": "Track title on the obi, vertical-rl, read top-down; 18px/25px in the mini player." },
+      "body": { "displayName": "Body", "purpose": "Segoe UI system face; Apple's SF Pro is aliased to it weight for weight." },
+      "label": { "displayName": "Obi Artist", "purpose": "Artist line on the obi, vertical-rl, in the band's secondary ink." },
+      "numeric": { "displayName": "Numeric", "purpose": "Elapsed and remaining time in tabular figures." }
+    },
+    "shadows": [],
+    "motion": [
+      { "name": "o-ease", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Orchard's own easing for every authored transition." },
+      { "name": "obi-print", "value": "clip-path inset(0 0 100% 0) to inset(0), 720ms o-ease", "purpose": "New track sheet printed over the old one, top to bottom. Instant under reduced motion." },
+      { "name": "obi-recolour", "value": "background-color 600ms o-ease", "purpose": "Band colour cross-fade on track change." },
+      { "name": "art-fade", "value": "opacity 400ms o-ease", "purpose": "Mini-player artwork fades in on load." },
+      { "name": "controls-reveal", "value": "opacity 220ms o-ease", "purpose": "Mini-player controls and scrim on hover or focus-within." },
+      { "name": "control-press", "value": "transform 160ms o-ease, scale 1.06 hover / 0.96 active", "purpose": "Mini-player transport buttons." },
+      { "name": "winctl", "value": "background-color, color 120ms linear", "purpose": "Windows caption buttons, matching native timing." }
+    ],
+    "breakpoints": []
+  },
+  "components": [
+    {
+      "name": "Obi Band",
+      "kind": "custom",
+      "refersTo": "obi-band",
+      "description": "Full-height printed band with vertical title and artist, re-inked per track; shown here idle.",
+      "html": "<aside class=\"ds-obi\"><div class=\"ds-obi__sheet\"><span class=\"ds-obi__title\">Orchard</span><span class=\"ds-obi__artist\">Nothing playing</span></div><span class=\"ds-obi__time\">1:24</span></aside>",
+      "css": ".ds-obi { position: relative; width: 56px; height: 420px; overflow: hidden; background: #d21a2e; color: #fff4e8; font-family: 'Segoe UI', sans-serif; transition: background-color 600ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-obi__sheet { position: absolute; inset: 0; display: flex; flex-direction: row-reverse; justify-content: center; align-items: flex-start; gap: 2px; padding: 72px 0 112px; } .ds-obi__sheet::before, .ds-obi__sheet::after { content: ''; position: absolute; left: 10px; right: 10px; height: 1px; background: currentColor; opacity: 0.35; } .ds-obi__sheet::before { top: 56px; } .ds-obi__sheet::after { bottom: 96px; } .ds-obi__title, .ds-obi__artist { writing-mode: vertical-rl; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-height: 100%; } .ds-obi__title { font-family: 'Orchard Display', 'Dela Gothic One', 'Segoe UI Black', sans-serif; font-size: 19px; line-height: 26px; letter-spacing: 0.02em; } .ds-obi__artist { font-size: 12px; font-weight: 600; line-height: 18px; letter-spacing: 0.04em; } .ds-obi__time { position: absolute; left: 0; right: 0; bottom: 62px; text-align: center; font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: 0.02em; opacity: 0.85; }"
+    },
+    {
+      "name": "Obi Mini Toggle",
+      "kind": "button",
+      "refersTo": "obi-mini-toggle",
+      "description": "Button at the foot of the band; its states mix the band's own ink so it works on any record colour.",
+      "html": "<div style=\"background:#d21a2e;color:#fff4e8;width:56px;padding:8px 0;display:grid;place-items:center\"><button class=\"ds-obi-mini\" type=\"button\" aria-label=\"Switch to mini player\"><svg viewBox=\"0 0 20 20\" aria-hidden=\"true\"><rect x=\"2.5\" y=\"4.5\" width=\"15\" height=\"11\" rx=\"1.5\"/><rect class=\"fill\" x=\"10\" y=\"9.5\" width=\"5.5\" height=\"4\" rx=\".75\"/></svg></button></div>",
+      "css": ".ds-obi-mini { width: 40px; height: 40px; display: grid; place-items: center; border: 0; border-radius: 8px; background: transparent; color: inherit; cursor: pointer; transition: background-color 160ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-obi-mini:hover { background: color-mix(in srgb, currentColor 16%, transparent); } .ds-obi-mini:active { background: color-mix(in srgb, currentColor 26%, transparent); } .ds-obi-mini:focus-visible { outline: 2px solid currentColor; outline-offset: -2px; } .ds-obi-mini svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.4; } .ds-obi-mini svg .fill { fill: currentColor; stroke: none; }"
+    },
+    {
+      "name": "Window Controls",
+      "kind": "button",
+      "refersTo": "window-control",
+      "description": "Frameless-window caption buttons, top right, with Windows close-red on hover.",
+      "html": "<div class=\"ds-winctl\"><button type=\"button\" aria-label=\"Minimize\"><svg viewBox=\"0 0 16 16\" aria-hidden=\"true\"><path d=\"M3 8.5h10\"/></svg></button><button type=\"button\" aria-label=\"Maximize\"><svg viewBox=\"0 0 16 16\" aria-hidden=\"true\"><rect x=\"3.5\" y=\"3.5\" width=\"9\" height=\"9\" rx=\"1\"/></svg></button><button type=\"button\" class=\"ds-winctl__close\" aria-label=\"Close\"><svg viewBox=\"0 0 16 16\" aria-hidden=\"true\"><path d=\"M4 4l8 8M12 4l-8 8\"/></svg></button></div>",
+      "css": ".ds-winctl { display: flex; background: #141213; } .ds-winctl button { width: 46px; height: 32px; display: grid; place-items: center; border: 0; background: transparent; color: rgba(241, 236, 228, 0.68); transition: background-color 120ms linear, color 120ms linear; } .ds-winctl button:hover { background: rgba(241, 236, 228, 0.09); color: #f1ece4; } .ds-winctl button:active { background: rgba(241, 236, 228, 0.14); } .ds-winctl .ds-winctl__close:hover { background: #c42b1c; color: #fff; } .ds-winctl button:focus-visible { outline: 2px solid #f1ece4; outline-offset: -2px; } .ds-winctl svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.1; }"
+    },
+    {
+      "name": "Docked Player Bar",
+      "kind": "custom",
+      "refersTo": "player-bar",
+      "description": "Apple's player, docked flush and square on Raised Black with a hairline top rule; no glass, no shadow.",
+      "html": "<div class=\"ds-player\"><span class=\"ds-player__title\">Stop The Wedding!</span><span class=\"ds-player__sub\">Ashe</span></div>",
+      "css": ".ds-player { display: flex; flex-direction: column; justify-content: center; height: 52px; padding: 0 24px; background: #221e1f; border-top: 1px solid rgba(241, 236, 228, 0.09); border-radius: 0; box-shadow: none; font-family: 'Segoe UI', sans-serif; } .ds-player__title { color: #f1ece4; font-size: 13px; font-weight: 600; } .ds-player__sub { color: rgba(241, 236, 228, 0.68); font-size: 12px; }"
+    },
+    {
+      "name": "Transport",
+      "kind": "button",
+      "refersTo": "transport-play",
+      "description": "Mini-player transport: a solid ink play disc flanked by transparent skip circles.",
+      "html": "<div class=\"ds-transport\"><button class=\"ds-t ds-t--skip\" type=\"button\" aria-label=\"Previous\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M6 5.5a1 1 0 0 1 2 0v4.6l8.4-5a1 1 0 0 1 1.6.9v12a1 1 0 0 1-1.6.9L8 13.9v4.6a1 1 0 0 1-2 0z\"/></svg></button><button class=\"ds-t ds-t--play\" type=\"button\" aria-label=\"Play\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M8 5.6v12.8a1 1 0 0 0 1.5.9l10.2-6.4a1 1 0 0 0 0-1.7L9.5 4.7A1 1 0 0 0 8 5.6z\"/></svg></button><button class=\"ds-t ds-t--skip\" type=\"button\" aria-label=\"Next\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M18 5.5a1 1 0 0 0-2 0v4.6l-8.4-5A1 1 0 0 0 6 6v12a1 1 0 0 0 1.6.9l8.4-5v4.6a1 1 0 0 0 2 0z\"/></svg></button></div>",
+      "css": ".ds-transport { display: flex; justify-content: center; align-items: center; gap: 18px; padding: 24px; background: #141213; color: #f1ece4; } .ds-t { display: grid; place-items: center; border: 0; border-radius: 50%; background: transparent; color: inherit; cursor: pointer; transition: transform 160ms cubic-bezier(0.16, 1, 0.3, 1), background-color 140ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-t svg { fill: currentColor; } .ds-t--skip { width: 48px; height: 48px; } .ds-t--skip svg { width: 26px; height: 26px; } .ds-t--play { width: 64px; height: 64px; background: #f1ece4; color: #141213; } .ds-t--play svg { width: 28px; height: 28px; } .ds-t:hover { transform: scale(1.06); } .ds-t--skip:hover { background: rgba(241, 236, 228, 0.12); } .ds-t:active { transform: scale(0.96); } .ds-t:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }"
+    },
+    {
+      "name": "Icon Button",
+      "kind": "button",
+      "refersTo": "icon-button",
+      "description": "Small stroked-icon control printed over the mini-player sleeve.",
+      "html": "<div style=\"background:#141213;color:#f1ece4;padding:16px\"><button class=\"ds-icon-btn\" type=\"button\" aria-label=\"Back to full window\"><svg viewBox=\"0 0 16 16\" aria-hidden=\"true\"><path d=\"M9.5 2.5h4v4M13.5 2.5L9 7M6.5 13.5h-4v-4M2.5 13.5L7 9\"/></svg></button></div>",
+      "css": ".ds-icon-btn { width: 32px; height: 32px; display: grid; place-items: center; border: 0; border-radius: 8px; background: transparent; color: inherit; cursor: pointer; transition: background-color 140ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-icon-btn:hover { background: rgba(241, 236, 228, 0.14); } .ds-icon-btn:active { background: rgba(241, 236, 228, 0.22); } .ds-icon-btn:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; } .ds-icon-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }"
+    },
+    {
+      "name": "Solid Button",
+      "kind": "button",
+      "refersTo": "button-solid",
+      "description": "The one solid text button: warm ink fill, sleeve-black text.",
+      "html": "<div style=\"background:#221e1f;padding:24px\"><button class=\"ds-btn-solid\" type=\"button\">Open full window</button></div>",
+      "css": ".ds-btn-solid { border: 0; border-radius: 8px; padding: 8px 14px; background: #f1ece4; color: #141213; font: 600 13px/1.3 'Segoe UI', sans-serif; cursor: pointer; transition: transform 160ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-btn-solid:hover { transform: translateY(-1px); } .ds-btn-solid:active { transform: translateY(0); } .ds-btn-solid:focus-visible { outline: 2px solid #f1ece4; outline-offset: 2px; }"
+    },
+    {
+      "name": "Navigation Item",
+      "kind": "nav",
+      "refersTo": "navigation",
+      "description": "Apple's sidebar item re-inked: warm ink icons in place of Apple's blue, hairline selected row.",
+      "html": "<nav class=\"ds-nav\"><a class=\"ds-nav__item is-selected\" href=\"#\"><svg viewBox=\"0 0 16 16\" aria-hidden=\"true\"><path d=\"M2.5 7.5L8 3l5.5 4.5v6h-11z\"/></svg>Home</a><a class=\"ds-nav__item\" href=\"#\"><svg viewBox=\"0 0 16 16\" aria-hidden=\"true\"><rect x=\"2.5\" y=\"2.5\" width=\"4.5\" height=\"4.5\" rx=\"1\"/><rect x=\"9\" y=\"2.5\" width=\"4.5\" height=\"4.5\" rx=\"1\"/><rect x=\"2.5\" y=\"9\" width=\"4.5\" height=\"4.5\" rx=\"1\"/><rect x=\"9\" y=\"9\" width=\"4.5\" height=\"4.5\" rx=\"1\"/></svg>New</a></nav>",
+      "css": ".ds-nav { width: 220px; padding: 12px; background: #1a1718; border-right: 1px solid rgba(241, 236, 228, 0.09); font: 400 15px/1.3 'Segoe UI', sans-serif; } .ds-nav__item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; color: rgba(241, 236, 228, 0.68); text-decoration: none; } .ds-nav__item svg { width: 16px; height: 16px; fill: none; stroke: rgba(241, 236, 228, 0.46); stroke-width: 1.2; } .ds-nav__item:hover svg { stroke: rgba(241, 236, 228, 0.68); } .ds-nav__item.is-selected { background: rgba(241, 236, 228, 0.09); color: #f1ece4; } .ds-nav__item.is-selected svg { stroke: #f1ece4; } .ds-nav__item:focus-visible { outline: 2px solid #f1ece4; outline-offset: 2px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Import Obi",
+    "overview": "Every track gets its own obi. A flat printed band wraps the window's left edge like the paper strip on a Japanese import LP, and it is re-printed for each record in that album's own colours: the artwork's `bgColor` becomes the band, its `textColor1` and `textColor2` become the ink. When nothing plays, the band falls back to Obi Red with cream ink. Everything else sits on a warm sleeve-black ground in warm off-white ink, so the band is the only saturated thing Orchard itself prints.\n\nOrchard restyles a page Apple owns. Its only hooks are Apple's `data-testid` attributes and Apple's own CSS variables (`--pageBG`, `--systemPrimary`, `--navSidebarBG`, `--playerBackground` and siblings), re-pointed at Orchard tokens under `:root.orchard`. Hashed class names are avoided. Anything Orchard cannot reach falls back to Apple's look rather than breaking, and that fallback is intended behaviour, not drift. Apple's editorial content (cards, shelf artwork, their labels and badges) is out of scope: Orchard neither restyles nor imitates it.\n\nThe system is flat print. No glass, no blur, no gradients, no floating pills: the player bar docks flush to the bottom edge with a hairline on top, and depth comes from three tonal steps of warm black. Display type is Dela Gothic One, set vertically on the band and horizontally on page titles; lists and controls stay in the Windows system face.",
+    "keyCharacteristics": [
+      "A 56px full-height obi on the far left, re-inked per track, with a top-to-bottom print wipe on change.",
+      "Warm sleeve-black ground, three tonal steps, warm off-white ink at three opacities.",
+      "Dela Gothic One for titles only; Segoe UI for everything read in lists.",
+      "Flat print: hairlines and tone instead of shadow, blur or gradient.",
+      "Restyle through Apple's test ids and CSS variables only; unreached parts degrade to Apple's own look."
+    ],
+    "rules": [
+      { "name": "The Record Owns the Colour Rule", "body": "The band's colour is the playing album's `bgColor`; Orchard does not pick, tint or harmonise it. Obi Red exists only for the idle state.", "section": "colors" },
+      { "name": "The 4.5:1 Ink Rule", "body": "Per-track inks come from the artwork's `textColor1` / `textColor2`, but any ink below 4.5:1 against its band is replaced by whichever of Sleeve Black or Obi Cream contrasts more. Legibility beats fidelity.", "section": "colors" },
+      { "name": "The Warm Alpha Rule", "body": "Every translucent neutral is Warm Ink (`241, 236, 228`) at an alpha: 0.03 even rows, 0.06 hover wash, 0.09 hairline and selection, 0.12 to 0.14 control hover, 0.16 to 0.28 scrollbar thumb, 0.18 progress track, 0.22 control press. Never neutral grey, never Apple's blue.", "section": "colors" },
+      { "name": "The Names Only Rule", "body": "Dela Gothic One sets names: track titles, page titles, shelf titles. Never lists, labels, buttons or numerals.", "section": "typography" },
+      { "name": "The Obi Reads Down Rule", "body": "Text on the band is `vertical-rl`, starting from the head of the band, title to the right of artist, truncated with an ellipsis rather than shrunk.", "section": "typography" },
+      { "name": "The Flat Print Rule", "body": "No glass, no blur, no gradient, no drop shadow. Separate surfaces with a tone step or a 1px Hairline.", "section": "elevation" }
+    ],
+    "dos": [
+      "**Do** restyle Apple's page only through `data-testid` hooks and Apple's CSS variables under `:root.orchard`, and let anything unmatched fall back to Apple's look.",
+      "**Do** take the band's colour from the playing artwork's `bgColor` and enforce 4.5:1 on its ink, falling back to Sleeve Black or Obi Cream.",
+      "**Do** separate surfaces with the three warm-black tone steps and 1px Hairline rules.",
+      "**Do** set track, page and shelf titles in Dela Gothic One at weight 400, and everything else in Segoe UI.",
+      "**Do** use `cubic-bezier(0.16, 1, 0.3, 1)` for Orchard's own motion and drop transitions under `prefers-reduced-motion`.",
+      "**Do** draw icons as authored inline SVG with `currentColor` strokes."
+    ],
+    "donts": [
+      "**Don't** add glass, backdrop blur, gradients or drop shadows to any surface.",
+      "**Don't** float the player bar as a pill; it docks flush and square.",
+      "**Don't** tint, crop or overlay album artwork at rest; the scrim is interaction-only.",
+      "**Don't** restyle or imitate Apple's editorial cards and their labels, or present Apple branding as Orchard's identity.",
+      "**Don't** hook hashed Apple class names when a `data-testid` or Apple variable exists.",
+      "**Don't** use Apple's blue or a neutral grey for icons or translucent fills; use Warm Ink at an alpha."
+    ]
+  }
+}

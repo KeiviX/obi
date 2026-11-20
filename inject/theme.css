@@ -1,12 +1,302 @@
-/* Orchard UI patches for music.apple.com.
-   Keep selectors few and resilient: Apple can change the markup at any time. */
+/* Orchard: the obi strip, printed over music.apple.com.
+   Hooks are Apple's data-testid attributes and CSS variables, which change far less
+   often than its hashed class names. If one stops matching, that part falls back to
+   Apple's own look instead of breaking. */
 
-/* Thinner, quieter scrollbars. */
-::-webkit-scrollbar { width: 10px; height: 10px; }
-::-webkit-scrollbar-thumb {
-  background: rgba(128, 128, 128, 0.35);
+/* ---- Type --------------------------------------------------------------
+   Apple's stack names SF Pro / Helvetica Neue, which Windows doesn't have, so the
+   page fell back to Arial. Alias SF Pro to Segoe UI, weight for weight. */
+@font-face { font-family: "SF Pro"; font-weight: 100 350; src: local("Segoe UI Light"); }
+@font-face { font-family: "SF Pro"; font-weight: 351 450; src: local("Segoe UI"); }
+@font-face { font-family: "SF Pro"; font-weight: 451 650; src: local("Segoe UI Semibold"); }
+@font-face { font-family: "SF Pro"; font-weight: 651 799; src: local("Segoe UI Bold"); }
+@font-face { font-family: "SF Pro"; font-weight: 800 1000; src: local("Segoe UI Black"); }
+
+:root.orchard {
+  /* Orchard palette */
+  --o-ground: #141213;
+  --o-sidebar: #1a1718;
+  --o-raised: #221e1f;
+  --o-ink: #f1ece4;
+  --o-ink-2: rgba(241, 236, 228, 0.68);
+  --o-ink-3: rgba(241, 236, 228, 0.46);
+  --o-line: rgba(241, 236, 228, 0.09);
+  --o-hover: rgba(241, 236, 228, 0.06);
+  --obi-bg: #d21a2e;
+  --obi-ink: #fff4e8;
+  --obi-w: 56px;
+  --o-ctl-h: 32px;
+  --o-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --o-display: "Orchard Display", "Segoe UI Black", sans-serif;
+
+  /* Re-ink Apple's own tokens */
+  --pageBG: var(--o-ground);
+  --pageBG-dark-rgb: 20, 18, 19;
+  --systemPrimary: var(--o-ink);
+  --systemPrimary-vibrant: var(--o-ink);
+  --systemSecondary: var(--o-ink-2);
+  --systemSecondary-vibrant: var(--o-ink-2);
+  --systemTertiary: var(--o-ink-3);
+  --navSidebarBG: var(--o-sidebar);
+  --navSidebarSelectedState: rgba(241, 236, 228, 0.09);
+  --playerBackground: var(--o-raised);
+  --playerBackgroundFallback-default_IC: var(--o-raised);
+  --fallbackMaterialBG: var(--o-raised);
+  --lockupHoverBGColor: var(--o-hover);
+  --trackBackgroundEven: rgba(241, 236, 228, 0.03);
+  --contextMenuBorderColor: var(--o-line);
+
+  background: var(--o-ground);
+  color-scheme: dark;
+}
+
+:root.orchard body { background: var(--o-ground); }
+
+/* Make room for the obi: everything Apple draws shifts right of the band. */
+:root.orchard .body-container {
+  margin-left: var(--obi-w);
+  width: calc(100% - var(--obi-w));
+}
+
+/* ---- Remove clutter ------------------------------------------------------ */
+:root.orchard [data-testid="upsell-banner"],
+:root.orchard [data-testid="banner-container"],
+:root.orchard [data-testid="native-cta"],
+:root.orchard [data-testid="logo"],
+:root.orchard [data-testid="player-lcd-empty-state"] {
+  display: none !important;
+}
+:root.orchard .navigation__header { min-height: var(--o-ctl-h); }
+
+/* ---- Sidebar ------------------------------------------------------------- */
+:root.orchard [data-testid="header"] {
+  background: var(--o-sidebar);
+  border-right: 1px solid var(--o-line);
+}
+/* Apple's nav paints its own translucent grey on top; let the sidebar ground show. */
+:root.orchard [data-testid="navigation"] {
+  background: transparent !important;
+  backdrop-filter: none !important;
+}
+
+/* ---- Page titles in the obi's display face ------------------------------- */
+:root.orchard [data-testid="header-component-model"] h1 {
+  font-family: var(--o-display);
+  font-weight: 400;
+  font-size: 52px;
+  line-height: 1.02;
+  letter-spacing: 0;
+  text-wrap: balance;
+}
+:root.orchard [data-testid="header-title"] {
+  font-family: var(--o-display);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
+/* ---- Navigation: warm ink instead of Apple's blue icons ------------------ */
+:root.orchard [data-testid="navigation-item"] .navigation-item__icon { color: var(--o-ink-3); }
+:root.orchard [data-testid="navigation-item"] .navigation-item__icon svg,
+:root.orchard [data-testid="navigation-item"] .navigation-item__icon svg path {
+  fill: currentColor !important;
+}
+:root.orchard [data-testid="navigation-item"]:hover .navigation-item__icon { color: var(--o-ink-2); }
+:root.orchard [data-testid="navigation-item"][aria-selected="true"] .navigation-item__icon,
+:root.orchard [data-testid="navigation-item"][aria-selected="true"] .navigation-item__label {
+  color: var(--o-ink);
+}
+
+/* ---- Player bar: docked flush to the bottom edge, flat print, no glass --- */
+:root.orchard [data-testid="player-bar"] {
+  /* Apple sizes the bar as 100vw minus its sidebar, which overflows left by the
+     obi's width. Fill the grid column instead. */
+  width: auto !important;
+  justify-self: stretch !important;
+  bottom: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: transparent !important;
+}
+:root.orchard [data-testid="player-bar"] > .wrapper {
+  padding: 0 !important;
+  margin: 0 !important;
+  max-width: none !important;
+  width: 100% !important;
+}
+:root.orchard [data-testid="chrome-player"] {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  background: var(--o-raised) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 0 !important;
+  border-top: 1px solid var(--o-line) !important;
+  box-shadow: none !important;
+}
+:root.orchard [data-testid="chrome-player"] *,
+:root.orchard [data-testid="chrome-player"]::before,
+:root.orchard [data-testid="chrome-player"]::after {
+  backdrop-filter: none !important;
+}
+
+/* ---- Browser surfaces ---------------------------------------------------- */
+:root.orchard ::selection { background: var(--obi-bg); color: var(--obi-ink); }
+:root.orchard :focus-visible { outline: 2px solid var(--o-ink); outline-offset: 2px; }
+:root.orchard ::-webkit-scrollbar { width: 10px; height: 10px; }
+:root.orchard ::-webkit-scrollbar-thumb {
+  background: rgba(241, 236, 228, 0.16);
   border-radius: 5px;
   border: 2px solid transparent;
   background-clip: padding-box;
 }
-::-webkit-scrollbar-track { background: transparent; }
+:root.orchard ::-webkit-scrollbar-thumb:hover { background-color: rgba(241, 236, 228, 0.28); }
+:root.orchard ::-webkit-scrollbar-track,
+:root.orchard ::-webkit-scrollbar-corner { background: transparent; }
+
+/* ---- The obi ------------------------------------------------------------- */
+#orchard-chrome { font-family: "Segoe UI", sans-serif; }
+
+.o-obi {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: var(--obi-w);
+  z-index: 2147483000;
+  background: var(--obi-bg);
+  color: var(--obi-ink);
+  user-select: none;
+  overflow: hidden;
+  transition: background-color 600ms var(--o-ease);
+}
+
+.o-obi__sheets { position: absolute; inset: 0; }
+
+.o-obi__sheet {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 72px 0 112px;
+  background: var(--sheet-bg);
+  color: var(--sheet-ink);
+  writing-mode: horizontal-tb;
+}
+/* Printed rules near the head and foot of the band, like a real obi. */
+.o-obi__sheet::before,
+.o-obi__sheet::after {
+  content: "";
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.35;
+}
+.o-obi__sheet::before { top: 56px; }
+.o-obi__sheet::after { bottom: 96px; }
+
+.o-obi__title,
+.o-obi__artist {
+  writing-mode: vertical-rl;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-height: 100%;
+}
+.o-obi__title {
+  font-family: var(--o-display);
+  font-size: 19px;
+  line-height: 26px;
+  letter-spacing: 0.02em;
+}
+.o-obi__artist {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 18px;
+  letter-spacing: 0.04em;
+  color: var(--sheet-ink-2, var(--sheet-ink));
+}
+
+.o-obi__sheet--printing {
+  animation: o-print 720ms var(--o-ease) both;
+}
+@keyframes o-print {
+  from { clip-path: inset(0 0 100% 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+
+.o-obi__time {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 62px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  opacity: 0.85;
+}
+
+.o-obi__mini {
+  position: absolute;
+  left: 8px;
+  bottom: 12px;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  transition: background-color 160ms var(--o-ease);
+}
+.o-obi__mini:hover { background: color-mix(in srgb, currentColor 16%, transparent); }
+.o-obi__mini:active { background: color-mix(in srgb, currentColor 26%, transparent); }
+.o-obi__mini:focus-visible { outline: 2px solid currentColor; outline-offset: -2px; }
+.o-obi__mini svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.4; }
+.o-obi__mini svg .fill { fill: currentColor; stroke: none; }
+
+/* ---- Window chrome ------------------------------------------------------- */
+.o-dragstrip {
+  position: fixed;
+  top: 0;
+  left: var(--obi-w);
+  right: 138px;
+  height: 14px;
+  z-index: 2147483000;
+}
+
+.o-winctl {
+  position: fixed;
+  top: 0;
+  right: 0;
+  display: flex;
+  z-index: 2147483001;
+}
+.o-winctl button {
+  width: 46px;
+  height: var(--o-ctl-h);
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: var(--o-ink-2);
+  cursor: default;
+  transition: background-color 120ms linear, color 120ms linear;
+}
+.o-winctl button:hover { background: rgba(241, 236, 228, 0.09); color: var(--o-ink); }
+.o-winctl button:active { background: rgba(241, 236, 228, 0.14); }
+.o-winctl .o-winctl__close:hover { background: #c42b1c; color: #fff; }
+.o-winctl button:focus-visible { outline: 2px solid var(--o-ink); outline-offset: -2px; }
+.o-winctl svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .o-obi, .o-obi__mini { transition: none; }
+}

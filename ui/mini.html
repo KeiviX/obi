@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Orchard</title>
+<style>
+  @font-face {
+    font-family: "Orchard Display";
+    src: url("fonts/DelaGothicOne-latin.woff2") format("woff2");
+    font-display: block;
+  }
+  :root {
+    --o-ground: #141213;
+    --o-raised: #221e1f;
+    --o-ink: #f1ece4;
+    --o-ink-2: rgba(241, 236, 228, 0.68);
+    --obi-bg: #d21a2e;
+    --obi-ink: #fff4e8;
+    --obi-w: 56px;
+    --o-ease: cubic-bezier(0.16, 1, 0.3, 1);
+    --o-display: "Orchard Display", "Segoe UI Black", sans-serif;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    height: 100%;
+    background: var(--o-ground);
+    color: var(--o-ink);
+    font: 400 13px/1.3 "Segoe UI", sans-serif;
+    overflow: hidden;
+    user-select: none;
+  }
+  ::selection { background: var(--obi-bg); color: var(--obi-ink); }
+  button { font: inherit; color: inherit; }
+  button:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+
+  .mini { display: flex; height: 100vh; }
+
+  /* ---- Obi ---- */
+  .obi {
+    position: relative;
+    flex: 0 0 var(--obi-w);
+    overflow: hidden;
+    background: var(--obi-bg);
+    color: var(--obi-ink);
+    transition: background-color 600ms var(--o-ease);
+  }
+  .sheet {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 2px;
+    padding: 30px 0 30px;
+    background: var(--sheet-bg);
+    color: var(--sheet-ink);
+  }
+  .sheet::before, .sheet::after {
+    content: "";
+    position: absolute;
+    left: 10px; right: 10px;
+    height: 1px;
+    background: currentColor;
+    opacity: 0.35;
+  }
+  .sheet::before { top: 18px; }
+  .sheet::after { bottom: 18px; }
+  .sheet--printing { animation: print 720ms var(--o-ease) both; }
+  @keyframes print { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0); } }
+  .title, .artist {
+    writing-mode: vertical-rl;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-height: 100%;
+  }
+  .title { font-family: var(--o-display); font-size: 18px; line-height: 25px; letter-spacing: 0.02em; }
+  .artist { font-size: 12px; font-weight: 600; line-height: 18px; letter-spacing: 0.04em; color: var(--sheet-ink-2, var(--sheet-ink)); }
+
+  /* ---- Sleeve (artwork) ---- */
+  .sleeve {
+    position: relative;
+    flex: 0 0 300px;
+    height: 300px;
+    background: var(--o-raised);
+    overflow: hidden;
+  }
+  .art {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 400ms var(--o-ease);
+  }
+  .art.is-loaded { opacity: 1; }
+  .empty {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    color: var(--o-ink-2);
+    padding: 24px;
+  }
+  .empty__text { margin: 0 auto 16px; max-width: 20ch; font-size: 14px; line-height: 1.45; text-wrap: balance; }
+  .empty__btn {
+    position: relative;
+    z-index: 1;
+    border: 0;
+    border-radius: 8px;
+    padding: 8px 14px;
+    background: var(--o-ink);
+    color: var(--o-ground);
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 160ms var(--o-ease);
+  }
+  .empty__btn:hover { transform: translateY(-1px); }
+  .empty__btn:active { transform: translateY(0); }
+  .has-track .empty { display: none; }
+
+  /* Controls print over the sleeve on hover, like the Mac mini player. */
+  .controls {
+    position: absolute;
+    inset: 0;
+    background: rgba(12, 10, 11, 0.58);
+    opacity: 0;
+    transition: opacity 220ms var(--o-ease);
+  }
+  .sleeve:hover .controls,
+  .sleeve:focus-within .controls,
+  .no-track .controls { opacity: 1; }
+  .no-track .controls { background: transparent; }
+  .no-track .transport, .no-track .progress, .no-track .times { visibility: hidden; }
+
+  .corner { position: absolute; top: 8px; right: 8px; display: flex; gap: 2px; }
+  .icon-btn {
+    width: 32px; height: 32px;
+    display: grid; place-items: center;
+    border: 0; border-radius: 8px;
+    background: transparent;
+    cursor: pointer;
+    transition: background-color 140ms var(--o-ease);
+  }
+  .icon-btn:hover { background: rgba(241, 236, 228, 0.14); }
+  .icon-btn:active { background: rgba(241, 236, 228, 0.22); }
+  .icon-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+
+  .transport {
+    position: absolute;
+    left: 0; right: 0; top: 50%;
+    transform: translateY(-50%);
+    display: flex; justify-content: center; align-items: center; gap: 18px;
+  }
+  .t-btn {
+    display: grid; place-items: center;
+    border: 0; border-radius: 50%;
+    background: transparent;
+    cursor: pointer;
+    transition: transform 160ms var(--o-ease), background-color 140ms var(--o-ease);
+  }
+  .t-btn svg { fill: currentColor; }
+  .t-btn--skip { width: 48px; height: 48px; }
+  .t-btn--skip svg { width: 26px; height: 26px; }
+  .t-btn--play { width: 64px; height: 64px; background: var(--o-ink); color: var(--o-ground); }
+  .t-btn--play svg { width: 28px; height: 28px; }
+  .t-btn:hover { transform: scale(1.06); }
+  .t-btn--skip:hover { background: rgba(241, 236, 228, 0.12); }
+  .t-btn:active { transform: scale(0.96); }
+
+  .times {
+    position: absolute; left: 14px; right: 14px; bottom: 18px;
+    display: flex; justify-content: space-between;
+    font-size: 11px; font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--o-ink-2);
+  }
+  .progress {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    height: 12px;
+    cursor: pointer;
+  }
+  .progress__track { position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: rgba(241, 236, 228, 0.18); }
+  .progress__fill { position: absolute; left: 0; bottom: 0; height: 4px; width: 0; background: var(--o-ink); }
+  .progress:hover .progress__track, .progress:hover .progress__fill { height: 6px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .obi, .art, .controls, .t-btn, .icon-btn { transition: none; }
+    .sheet--printing { animation: none; }
+  }
+</style>
+</head>
+<body>
+<main class="mini no-track" id="mini">
+  <aside class="obi" id="obi" aria-label="Now playing" data-drag></aside>
+  <section class="sleeve" data-drag>
+    <div class="empty" data-drag>
+      <div data-drag>
+        <p class="empty__text" data-drag>Start something in the full window and it shows up here.</p>
+        <button class="empty__btn" type="button" id="empty-open">Open full window</button>
+      </div>
+    </div>
+    <div class="controls" data-drag>
+      <div class="corner">
+        <button class="icon-btn" id="expand" type="button" aria-label="Back to full window" title="Full window (Ctrl+M)">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M9.5 2.5h4v4M13.5 2.5L9 7M6.5 13.5h-4v-4M2.5 13.5L7 9"/></svg>
+        </button>
+      </div>
+      <div class="transport" role="group" aria-label="Playback">
+        <button class="t-btn t-btn--skip" type="button" data-action="prev" aria-label="Previous">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5.5a1 1 0 0 1 2 0v4.6l8.4-5a1 1 0 0 1 1.6.9v12a1 1 0 0 1-1.6.9L8 13.9v4.6a1 1 0 0 1-2 0z"/></svg>
+        </button>
+        <button class="t-btn t-btn--play" type="button" data-action="toggle" id="play" aria-label="Play">
+          <svg viewBox="0 0 24 24" aria-hidden="true" id="play-icon"><path d="M8 5.6v12.8a1 1 0 0 0 1.5.9l10.2-6.4a1 1 0 0 0 0-1.7L9.5 4.7A1 1 0 0 0 8 5.6z"/></svg>
+        </button>
+        <button class="t-btn t-btn--skip" type="button" data-action="next" aria-label="Next">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 5.5a1 1 0 0 0-2 0v4.6l-8.4-5A1 1 0 0 0 6 6v12a1 1 0 0 0 1.6.9l8.4-5v4.6a1 1 0 0 0 2 0z"/></svg>
+        </button>
+      </div>
+      <div class="times" data-drag><span id="cur"></span><span id="rem"></span></div>
+      <div class="progress" id="progress" role="slider" aria-label="Playback position" tabindex="0" aria-valuemin="0">
+        <div class="progress__track"></div>
+        <div class="progress__fill" id="fill"></div>
+      </div>
+    </div>
+  </section>
+</main>
+<script>
+(() => {
+  const { invoke } = window.__TAURI__.core;
+  const { listen } = window.__TAURI__.event;
+  const $ = (id) => document.getElementById(id);
+  const root = document.documentElement;
+  const mini = $("mini"), obi = $("obi"), sleeve = document.querySelector(".sleeve");
+  let art = null;
+  const OBI_IDLE = { bg: "#D21A2E", ink: "#FFF4E8" };
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)");
+  const PLAY = '<path d="M8 5.6v12.8a1 1 0 0 0 1.5.9l10.2-6.4a1 1 0 0 0 0-1.7L9.5 4.7A1 1 0 0 0 8 5.6z"/>';
+  const PAUSE = '<rect x="6.5" y="5" width="4" height="14" rx="1"/><rect x="13.5" y="5" width="4" height="14" rx="1"/>';
+  let lastKey = null, duration = 0;
+
+  const fmt = (s) => {
+    if (!isFinite(s) || s < 0) return "";
+    s = Math.floor(s);
+    return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+  };
+  // Inks: use Apple's artwork colours, but never below 4.5:1 against the band.
+  const lum = (hex) => {
+    const n = parseInt(hex.replace("#", ""), 16);
+    const [r, g, b] = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((v) => {
+      v /= 255;
+      return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+    });
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  };
+  const contrast = (a, b) => {
+    const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p);
+    return (x + 0.05) / (y + 0.05);
+  };
+  const inkFor = (bg) => (contrast(bg, "#141213") > contrast(bg, "#FFF4E8") ? "#141213" : "#FFF4E8");
+  const legible = (ink, bg) => (ink && contrast(ink, bg) >= 4.5 ? ink : inkFor(bg));
+
+  function printObi(track) {
+    const key = track ? track.id || track.title + track.artist : "idle";
+    if (key === lastKey) return;
+    lastKey = key;
+    const bg = (track && track.bgColor) || OBI_IDLE.bg;
+    const ink = track && track.bgColor ? legible(track.textColor, bg) : OBI_IDLE.ink;
+    const ink2 = track && track.bgColor ? legible(track.textColor2, bg) : OBI_IDLE.ink;
+    root.style.setProperty("--obi-bg", bg);
+    root.style.setProperty("--obi-ink", ink);
+
+    const sheet = document.createElement("div");
+    sheet.className = "sheet";
+    sheet.dataset.drag = "";
+    sheet.style.setProperty("--sheet-bg", bg);
+    sheet.style.setProperty("--sheet-ink", ink);
+    sheet.style.setProperty("--sheet-ink-2", ink2);
+    const t = document.createElement("span");
+    t.className = "title"; t.dataset.drag = "";
+    t.textContent = track ? track.title : "Orchard";
+    const a = document.createElement("span");
+    a.className = "artist"; a.dataset.drag = "";
+    a.textContent = track ? track.artist : "Nothing playing";
+    sheet.append(t, a);
+    sheet.title = track ? `${track.title} · ${track.artist}` : "";
+    obi.appendChild(sheet);
+
+    const old = [...obi.children].slice(0, -1);
+    if (reduced.matches || !old.length) old.forEach((o) => o.remove());
+    else {
+      sheet.classList.add("sheet--printing");
+      sheet.addEventListener("animationend", () => {
+        sheet.classList.remove("sheet--printing");
+        old.forEach((o) => o.remove());
+      }, { once: true });
+    }
+  }
+
+  function setTrack(track) {
+    printObi(track);
+    mini.classList.toggle("has-track", !!track);
+    mini.classList.toggle("no-track", !track);
+    document.title = track ? `${track.title} · ${track.artist}` : "Orchard";
+    if (track && track.artworkUrl) {
+      if (art && art.src === track.artworkUrl) return;
+      const next = new Image();
+      next.className = "art";
+      next.dataset.drag = "";
+      next.alt = `${track.album || track.title} artwork`;
+      next.addEventListener("load", () => {
+        sleeve.insertBefore(next, sleeve.firstChild);
+        requestAnimationFrame(() => next.classList.add("is-loaded"));
+        const prev = art;
+        art = next;
+        if (prev) setTimeout(() => prev.remove(), 420);
+      }, { once: true });
+      next.src = track.artworkUrl;
+    } else if (art) {
+      art.remove();
+      art = null;
+    }
+  }
+
+  function setState(state) {
+    const playing = state === "playing";
+    $("play-icon").innerHTML = playing ? PAUSE : PLAY;
+    $("play").setAttribute("aria-label", playing ? "Pause" : "Play");
+  }
+
+  function setTime(cur, dur) {
+    duration = dur || 0;
+    $("fill").style.width = duration ? `${Math.min(100, (cur / duration) * 100)}%` : "0";
+    $("cur").textContent = duration ? fmt(cur) : "";
+    $("rem").textContent = duration ? "-" + fmt(duration - cur) : "";
+    const p = $("progress");
+    p.setAttribute("aria-valuemax", String(Math.round(duration)));
+    p.setAttribute("aria-valuenow", String(Math.round(cur)));
+    p.setAttribute("aria-valuetext", `${fmt(cur)} of ${fmt(duration)}`);
+  }
+
+  // Transport
+  document.querySelectorAll("[data-action]").forEach((b) =>
+    b.addEventListener("click", () => invoke("player_control", { action: b.dataset.action }))
+  );
+  $("expand").addEventListener("click", () => invoke("toggle_mini"));
+  $("empty-open").addEventListener("click", () => invoke("toggle_mini"));
+  $("progress").addEventListener("click", (e) => {
+    if (!duration) return;
+    const r = e.currentTarget.getBoundingClientRect();
+    invoke("player_control", { action: "seek", value: ((e.clientX - r.left) / r.width) * duration });
+  });
+  addEventListener("keydown", (e) => {
+    if (e.ctrlKey && e.key.toLowerCase() === "m") { e.preventDefault(); invoke("toggle_mini"); }
+    else if (e.key === " " && !e.target.closest("button")) { e.preventDefault(); invoke("player_control", { action: "toggle" }); }
+    else if (e.key === "ArrowRight" && e.ctrlKey) invoke("player_control", { action: "next" });
+    else if (e.key === "ArrowLeft" && e.ctrlKey) invoke("player_control", { action: "prev" });
+  });
+
+  // Drag the window from anything that isn't a control.
+  addEventListener("mousedown", (e) => {
+    if (e.button !== 0 || e.target.closest("button, [role=slider]") || !e.target.closest("[data-drag]")) return;
+    invoke("window_drag");
+  });
+
+  listen("now-playing", (e) => setTrack(e.payload));
+  listen("playback-state", (e) => setState(e.payload));
+  listen("playback-time", (e) => setTime(e.payload[0], e.payload[1]));
+
+  invoke("get_state").then((s) => {
+    setTrack(s.track);
+    setState(s.state);
+    setTime(s.currentTime, s.duration);
+  });
+})();
+</script>
+</body>
+</html>
