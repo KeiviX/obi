@@ -1,0 +1,26 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "design-system-font",
+        "value": "sf pro",
+        "createdAt": "2026-11-20T23:50:29.519Z",
+        "reason": "Claude: @font-face alias that remaps Apple's SF Pro stack to Segoe UI (theme.css); not a new face"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "orchard display",
+        "createdAt": "2026-11-20T23:50:29.712Z",
+        "reason": "Claude: family name for Dela Gothic One, documented in DESIGN.md"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "ui",
+        "createdAt": "2026-11-20T23:50:29.902Z",
+        "reason": "Claude: no font named ui exists in mini.html; detector artefact from the ui/fonts/ path"
+      }
+    ]
+  }
+}
