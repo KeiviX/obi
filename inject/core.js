@@ -2,7 +2,9 @@
 // Builds the obi band and window chrome, hooks the page's own MusicKit instance,
 // and reports playback to the Rust side.
 (() => {
-  if (window.__obi) return;
+  // Top frame only: Apple embeds music.apple.com pages in iframes (account settings,
+  // the commerce sheet), and a second obi strip must not be printed inside them.
+  if (window.__obi || window.top !== window) return;
 
   const ipc = () => window.__TAURI_INTERNALS__;
   const invoke = (cmd, args = {}) =>
@@ -260,6 +262,117 @@
       case "seek": return value != null && mk.seekToTime(value);
     }
   };
+
+  // --- Lyrics from Apple (same endpoints the web player uses) -------------
+  // Answers request_lyrics with { key, synced, lines: [{ t, text }] } or { key, lines: null }.
+  const ttmlTime = (v) => {
+    if (!v) return 0;
+    if (/s$/.test(v)) return parseFloat(v);
+    return v.split(":").reduce((acc, part) => acc * 60 + parseFloat(part), 0);
+  };
+  const parseTtml = (ttml) => {
+    const doc = new DOMParser().parseFromString(ttml, "application/xml");
+    const tt = doc.documentElement;
+    const synced = (tt.getAttribute("itunes:timing") || tt.getAttributeNS("*", "timing") || "") !== "None";
+    const lines = [...doc.getElementsByTagName("p")].map((p) => ({
+      t: ttmlTime(p.getAttribute("begin")),
+      text: p.textContent.replace(/\s+/g, " ").trim(),
+    }));
+    const anyTimed = lines.some((l) => l.t > 0);
+    return { synced: synced && anyTimed, lines };
+  };
+  app.lyrics = async () => {
+    const mk = app.mk;
+    const item = mk && mk.nowPlayingItem;
+    const key = item && item.id ? String(item.id) : null;
+    const reply = (body) => invoke("lyrics_result", { lyrics: { key, ...body } }).catch(() => {});
+    if (!item) return reply({ lines: null });
+    const a = item.attributes || {};
+    const pp = a.playParams || item.playParams || {};
+    const id = pp.catalogId || (pp.isLibrary ? null : pp.id) || (/^\d+$/.test(key) ? key : null);
+    if (!id) return reply({ lines: null });
+    const sf = mk.storefrontId || "us";
+    for (const kind of ["lyrics"]) {
+      try {
+        const res = await mk.api.music(`/v1/catalog/${sf}/songs/${id}/${kind}`);
+        const ttml = res && res.data && res.data.data && res.data.data[0] && res.data.data[0].attributes.ttml;
+        if (ttml) {
+          const parsed = parseTtml(ttml);
+          if (parsed.lines.length) return reply(parsed);
+        }
+      } catch (e) {
+        log("info", `apple ${kind} unavailable: ${e && (e.errorCode || e.message || e)}`);
+      }
+    }
+    reply({ lines: null });
+  };
+
+  // --- Fast shuffle for big playlists --------------------------------------
+  // MusicKit loads a playlist's tracks one 100-song page at a time before it starts
+  // (a 1,600-song playlist took ~12s). Fetch every page at once, shuffle here, and hand
+  // MusicKit the finished list (~3-4s). Anything unexpected falls back to Apple's button.
+  const playlistTracksPath = () => {
+    const mk = app.mk;
+    const p = location.pathname;
+    let m = p.match(/\/library\/playlist\/(p\.[^/?#]+)/);
+    if (m) return `/v1/me/library/playlists/${m[1]}/tracks`;
+    m = p.match(/\/playlist\/[^/]+\/(pl\.[^/?#]+)/);
+    if (m && mk) return `/v1/catalog/${mk.storefrontId}/playlists/${m[1]}/tracks`;
+    return null;
+  };
+  const fetchAllTracks = async (path) => {
+    const mk = app.mk;
+    const first = await mk.api.music(path, { limit: 100 });
+    const body = first.data || {};
+    let pages = [body.data || []];
+    const total = body.meta && body.meta.total;
+    if (total > 100) {
+      const rest = [];
+      for (let o = 100; o < total; o += 100) rest.push(mk.api.music(path, { limit: 100, offset: o }));
+      pages = pages.concat((await Promise.all(rest)).map((r) => (r.data && r.data.data) || []));
+    } else if (!total && body.next) {
+      // No total reported: follow `next` like MusicKit does.
+      for (let next = body.next; next; ) {
+        const r = await mk.api.music(next);
+        pages.push((r.data && r.data.data) || []);
+        next = r.data && r.data.next;
+      }
+    }
+    return pages.flat().filter((t) => t && t.attributes && t.attributes.playParams);
+  };
+  let bypassShuffle = false;
+  document.addEventListener("click", async (e) => {
+    const btn = e.target.closest && e.target.closest(".primary-actions__button--shuffle");
+    if (!btn || bypassShuffle || !app.mk) return;
+    const path = playlistTracksPath();
+    if (!path) return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    const mk = app.mk;
+    const t0 = performance.now();
+    document.documentElement.classList.add("obi--busy");
+    try {
+      const ids = (await fetchAllTracks(path)).map((t) => t.id);
+      if (!ids.length) throw new Error("no playable tracks");
+      for (let i = ids.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [ids[i], ids[j]] = [ids[j], ids[i]];
+      }
+      mk.shuffleMode = 0;
+      await mk.setQueue({ songs: ids });
+      await mk.play();
+      // Turn the shuffle toggle on after playback starts, so it lights up without
+      // replacing the random first track.
+      mk.shuffleMode = 1;
+      log("info", `fast shuffle: ${ids.length} tracks in ${Math.round(performance.now() - t0)}ms`);
+    } catch (err) {
+      log("warn", "fast shuffle failed, using Apple's: " + (err && (err.message || err)));
+      bypassShuffle = true;
+      try { (btn.querySelector("button") || btn).click(); } finally { bypassShuffle = false; }
+    } finally {
+      document.documentElement.classList.remove("obi--busy");
+    }
+  }, true);
 
   const attach = (mk) => {
     const E = window.MusicKit.Events || {};

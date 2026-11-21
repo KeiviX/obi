@@ -6,6 +6,9 @@ use tauri::{AppHandle, Manager, Theme, WebviewUrl, WebviewWindowBuilder};
 
 pub const MAIN: &str = "main";
 pub const MINI: &str = "mini";
+pub const MINI_W: f64 = 356.0;
+pub const MINI_H: f64 = 300.0;
+pub const LYRICS_H: f64 = 300.0;
 
 const APPLE_MUSIC_URL: &str = "https://music.apple.com/";
 const CORE_JS: &str = include_str!("../../inject/core.js");
@@ -91,7 +94,7 @@ pub fn toggle_mini(app: &AppHandle) -> tauri::Result<()> {
     }
     let mini = WebviewWindowBuilder::new(app, MINI, WebviewUrl::App("mini.html".into()))
         .title("Obi")
-        .inner_size(356.0, 300.0)
+        .inner_size(MINI_W, MINI_H)
         .resizable(false)
         .maximizable(false)
         .decorations(false)

@@ -26,6 +26,7 @@
   --obi-ink: #fff4e8;
   --obi-w: 56px;
   --o-ctl-h: 32px;
+  --o-player-h: 54px;
   --o-ease: cubic-bezier(0.16, 1, 0.3, 1);
   --o-display: "Obi Display", "Segoe UI Black", sans-serif;
 
@@ -56,6 +57,20 @@
 :root.obi .body-container {
   margin-left: var(--obi-w);
   width: calc(100% - var(--obi-w));
+}
+
+/* Full-width shelves are sized 100dvw, which assumes nothing left of Apple's sidebar
+   and an overlay scrollbar. Here that overflows by the obi plus our 10px scrollbar, so
+   paging a shelf scrolled the whole page sideways (left arrows hid under the sidebar). */
+:root.obi .app-container .shelf-grid--full-width .shelf-grid__list {
+  width: calc(100dvw - var(--obi-w) - 10px) !important;
+}
+
+/* Primary action buttons (station/album Play) fill with --keyColorBG, which is white
+   in dark mode off Apple platforms, but their text falls back to #fff: white on white.
+   Keep any colour Apple sets for the container; only replace the fallback. */
+:root.obi .button.primary button {
+  color: var(--button-action-color, var(--o-ground));
 }
 
 /* ---- Remove clutter ------------------------------------------------------ */
@@ -146,6 +161,25 @@
 :root.obi [data-testid="chrome-player"]::after {
   backdrop-filter: none !important;
 }
+
+/* Up Next / side panel: Apple pins it to the full window height, which put its header
+   under the window controls and its last rows over the docked player bar. Fit it
+   between the title strip and the player. */
+:root.obi [data-testid="side-panel"] {
+  top: var(--o-ctl-h) !important;
+  bottom: var(--o-player-h) !important;
+  height: auto !important;
+  max-height: none !important;
+  border-left: 1px solid var(--o-line);
+  background: var(--o-sidebar) !important;
+}
+:root.obi [data-testid="side-panel"] .side-panel-header-wrapper {
+  padding-top: 8px !important;
+  background: var(--o-sidebar) !important;
+}
+
+/* Fast shuffle in progress (see core.js). */
+:root.obi.obi--busy, :root.obi.obi--busy * { cursor: progress !important; }
 
 /* ---- Browser surfaces ---------------------------------------------------- */
 :root.obi ::selection { background: var(--obi-bg); color: var(--obi-ink); }
@@ -275,7 +309,7 @@
   top: 0;
   left: var(--obi-w);
   right: 138px;
-  height: 14px;
+  height: var(--o-ctl-h); /* full title-bar height, level with the window controls */
   z-index: 2147483000;
 }
 

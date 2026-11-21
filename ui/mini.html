@@ -35,7 +35,34 @@
   button { font: inherit; color: inherit; }
   button:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
 
-  .mini { display: flex; height: 100vh; }
+  .mini { display: grid; grid-template-columns: var(--obi-w) 300px; grid-template-rows: 300px 1fr; height: 100vh; }
+
+  /* ---- Lyrics board (under the sleeve) ---- */
+  .lyrics {
+    grid-column: 1 / -1;
+    display: none;
+    position: relative;
+    overflow-y: auto;
+    padding: 110px 22px;
+    background: var(--obi-bg);
+    color: var(--obi-ink);
+    scrollbar-width: none;
+  }
+  .lyrics::-webkit-scrollbar { display: none; }
+  .show-lyrics .lyrics { display: block; }
+  .lyrics__line {
+    margin: 0 0 14px;
+    font: 700 22px/1.25 "Segoe UI", sans-serif;
+    opacity: 0.38;
+    cursor: pointer;
+    transform-origin: left center;
+    transition: opacity 300ms var(--o-ease), transform 300ms var(--o-ease);
+  }
+  .lyrics__line:hover { opacity: 0.65; }
+  .lyrics__line.is-active { opacity: 1; transform: scale(1.04); }
+  .lyrics--plain .lyrics__line { cursor: default; opacity: 0.85; font-size: 16px; font-weight: 600; }
+  .lyrics__msg { margin: 0; padding-top: 40px; text-align: center; opacity: 0.7; font-size: 14px; }
+  .icon-btn.is-on { background: rgba(241, 236, 228, 0.22); }
 
   /* ---- Obi ---- */
   .obi {
@@ -190,7 +217,7 @@
   .progress:hover .progress__track, .progress:hover .progress__fill { height: 6px; }
 
   @media (prefers-reduced-motion: reduce) {
-    .obi, .art, .controls, .t-btn, .icon-btn { transition: none; }
+    .obi, .art, .controls, .t-btn, .icon-btn, .lyrics__line { transition: none; }
     .sheet--printing { animation: none; }
   }
 </style>
@@ -207,6 +234,9 @@
     </div>
     <div class="controls" data-drag>
       <div class="corner">
+        <button class="icon-btn" id="lyrics-btn" type="button" aria-label="Lyrics" aria-pressed="false" title="Lyrics">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 3.5h11a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H8l-3 2.5V11.5H2.5a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1zM4.5 6.5h7M4.5 8.5h4"/></svg>
+        </button>
         <button class="icon-btn" id="expand" type="button" aria-label="Back to full window" title="Full window (Ctrl+M)">
           <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M9.5 2.5h4v4M13.5 2.5L9 7M6.5 13.5h-4v-4M2.5 13.5L7 9"/></svg>
         </button>
@@ -229,6 +259,7 @@
       </div>
     </div>
   </section>
+  <section class="lyrics" id="lyrics" aria-label="Lyrics"></section>
 </main>
 <script>
 (() => {
@@ -304,6 +335,8 @@
 
   function setTrack(track) {
     printObi(track);
+    curTrack = track;
+    loadLyrics();
     mini.classList.toggle("has-track", !!track);
     mini.classList.toggle("no-track", !track);
     document.title = track ? `${track.title} · ${track.artist}` : "Obi";
@@ -335,6 +368,7 @@
 
   function setTime(cur, dur) {
     duration = dur || 0;
+    syncLyrics(cur);
     $("fill").style.width = duration ? `${Math.min(100, (cur / duration) * 100)}%` : "0";
     $("cur").textContent = duration ? fmt(cur) : "";
     $("rem").textContent = duration ? "-" + fmt(duration - cur) : "";
@@ -343,6 +377,114 @@
     p.setAttribute("aria-valuenow", String(Math.round(cur)));
     p.setAttribute("aria-valuetext", `${fmt(cur)} of ${fmt(duration)}`);
   }
+
+
+  // ---- Lyrics (LRCLIB: synced LRC, fetched by title/artist/album/duration) ----
+  const lyricsEl = $("lyrics"), lyricsBtn = $("lyrics-btn");
+  let lyricLines = [], lyricIdx = -1, lyricsOpen = false, lyricsFor = null, curTrack = null, lastTime = 0;
+
+  const parseLrc = (lrc) => {
+    const out = [];
+    for (const raw of lrc.split(/\r?\n/)) {
+      const m = raw.match(/^((?:\[\d+:\d+(?:[.:]\d+)?\])+)\s*(.*)$/);
+      if (!m) continue;
+      for (const t of m[1].matchAll(/\[(\d+):(\d+)(?:[.:](\d+))?\]/g)) {
+        const frac = t[3] ? parseInt(t[3], 10) / 10 ** t[3].length : 0;
+        out.push({ t: +t[1] * 60 + +t[2] + frac, text: m[2] });
+      }
+    }
+    return out.sort((a, b) => a.t - b.t);
+  };
+  const lyricMsg = (text) => {
+    lyricsEl.className = "lyrics"; lyricsEl.innerHTML = ""; lyricLines = [];
+    const p = document.createElement("p"); p.className = "lyrics__msg"; p.textContent = text;
+    lyricsEl.appendChild(p);
+  };
+  const renderLyrics = (synced, plain) => {
+    lyricsEl.innerHTML = "";
+    lyricIdx = -1;
+    if (synced) {
+      lyricLines = Array.isArray(synced) ? synced : parseLrc(synced);
+      lyricsEl.className = "lyrics";
+      lyricLines.forEach((l, i) => {
+        const p = document.createElement("p");
+        p.className = "lyrics__line"; p.textContent = l.text || "♪"; p.dataset.i = i;
+        lyricsEl.appendChild(p);
+      });
+      lyricsEl.scrollTop = 0;
+      syncLyrics(lastTime, true);
+    } else if (plain) {
+      lyricLines = [];
+      lyricsEl.className = "lyrics lyrics--plain";
+      (Array.isArray(plain) ? plain.join("\n") : plain).split(/\r?\n/).forEach((t) => {
+        const p = document.createElement("p"); p.className = "lyrics__line"; p.textContent = t || " ";
+        lyricsEl.appendChild(p);
+      });
+      lyricsEl.scrollTop = 0;
+    } else lyricMsg("No lyrics found for this track.");
+  };
+  async function loadLyrics() {
+    if (!lyricsOpen) return;
+    if (!curTrack) { lyricsFor = null; lyricMsg("Nothing playing."); return; }
+    const key = curTrack.id || curTrack.title + curTrack.artist;
+    if (key === lyricsFor) return;
+    lyricsFor = key;
+    lyricMsg("Loading lyrics…");
+    // Apple first (via the main window's signed-in session), LRCLIB as a fallback.
+    const apple = await new Promise((resolve) => {
+      let done = false, stop = () => {};
+      const finish = (v) => { if (!done) { done = true; stop(); resolve(v); } };
+      listen("lyrics", (e) => { if (!e.payload || !curTrack || e.payload.key === curTrack.id) finish(e.payload); })
+        .then((un) => { stop = un; if (done) un(); });
+      setTimeout(() => finish(null), 6000);
+      invoke("request_lyrics").catch(() => finish(null));
+    });
+    if (key !== lyricsFor) return;
+    if (apple && apple.lines && apple.lines.length) {
+      return apple.synced ? renderLyrics(apple.lines, null) : renderLyrics(null, apple.lines.map((l) => l.text));
+    }
+    const q = new URLSearchParams({ track_name: curTrack.title, artist_name: curTrack.artist });
+    if (curTrack.album) q.set("album_name", curTrack.album);
+    if (curTrack.durationMs) q.set("duration", Math.round(curTrack.durationMs / 1000));
+    const get = async (url) => { const r = await fetch(url); return r.ok ? r.json() : null; };
+    try {
+      let hit = await get("https://lrclib.net/api/get?" + q);
+      if (!hit || !(hit.syncedLyrics || hit.plainLyrics)) {
+        const list = (await get("https://lrclib.net/api/search?" + new URLSearchParams({ track_name: curTrack.title, artist_name: curTrack.artist }))) || [];
+        hit = list.find((x) => x.syncedLyrics) || list.find((x) => x.plainLyrics) || null;
+      }
+      if (key !== lyricsFor) return;
+      renderLyrics(hit && hit.syncedLyrics, hit && hit.plainLyrics);
+    } catch {
+      if (key === lyricsFor) { lyricsFor = null; lyricMsg("Couldn't load lyrics."); }
+    }
+  }
+  function syncLyrics(cur, jump) {
+    lastTime = cur;
+    if (!lyricsOpen || !lyricLines.length) return;
+    let i = -1;
+    for (let k = 0; k < lyricLines.length && lyricLines[k].t <= cur + 0.15; k++) i = k;
+    if (i === lyricIdx) return;
+    const prev = lyricsEl.children[lyricIdx], next = lyricsEl.children[i];
+    if (prev) prev.classList.remove("is-active");
+    lyricIdx = i;
+    if (!next) return;
+    next.classList.add("is-active");
+    const top = next.offsetTop - lyricsEl.clientHeight / 2 + next.offsetHeight / 2;
+    lyricsEl.scrollTo({ top, behavior: jump || reduced.matches ? "auto" : "smooth" });
+  }
+  lyricsEl.addEventListener("click", (e) => {
+    const p = e.target.closest(".lyrics__line");
+    if (p && lyricLines.length) invoke("player_control", { action: "seek", value: lyricLines[+p.dataset.i].t });
+  });
+  lyricsBtn.addEventListener("click", () => {
+    lyricsOpen = !lyricsOpen;
+    mini.classList.toggle("show-lyrics", lyricsOpen);
+    lyricsBtn.classList.toggle("is-on", lyricsOpen);
+    lyricsBtn.setAttribute("aria-pressed", String(lyricsOpen));
+    invoke("mini_lyrics", { open: lyricsOpen });
+    if (lyricsOpen) loadLyrics();
+  });
 
   // Transport
   document.querySelectorAll("[data-action]").forEach((b) =>

@@ -11,6 +11,9 @@ const COMMANDS: &[&str] = &[
     "window_control",
     "window_drag",
     "toggle_mini",
+    "mini_lyrics",
+    "request_lyrics",
+    "lyrics_result",
     "update_status",
     "install_update",
 ];

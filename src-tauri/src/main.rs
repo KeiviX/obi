@@ -29,6 +29,9 @@ fn main() {
             bridge::window_control,
             bridge::window_drag,
             bridge::toggle_mini,
+            bridge::mini_lyrics,
+            bridge::request_lyrics,
+            bridge::lyrics_result,
             updater::update_status,
             updater::install_update,
         ])

@@ -19,6 +19,7 @@
     "allow-window-control",
     "allow-window-drag",
     "allow-toggle-mini",
+    "allow-lyrics-result",
     "allow-update-status",
     "allow-install-update"
   ]

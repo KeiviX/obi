@@ -124,3 +124,30 @@ pub fn window_drag(window: WebviewWindow) -> Result<(), String> {
 pub async fn toggle_mini(app: AppHandle) -> Result<(), String> {
     windows::toggle_mini(&app).map_err(|e| e.to_string())
 }
+
+/// Grow or shrink the mini player to show the lyrics board under the sleeve.
+#[tauri::command]
+pub fn mini_lyrics(window: WebviewWindow, open: bool) -> Result<(), String> {
+    let height = if open { windows::MINI_H + windows::LYRICS_H } else { windows::MINI_H };
+    window
+        .set_size(tauri::LogicalSize::new(windows::MINI_W, height))
+        .map_err(|e| e.to_string())
+}
+
+/// Mini player asks for the current track's lyrics. The main page fetches them from
+/// Apple (it holds the signed-in MusicKit session) and answers via `lyrics_result`.
+#[tauri::command]
+pub fn request_lyrics(app: AppHandle) -> Result<(), String> {
+    let main = app
+        .get_webview_window(windows::MAIN)
+        .ok_or("main window missing")?;
+    main.eval("window.__obi && window.__obi.lyrics && window.__obi.lyrics()")
+        .map_err(|e| e.to_string())
+}
+
+/// Apple lyrics from the main page, relayed to the mini player. `null` lines means
+/// Apple had none (the mini player then falls back to LRCLIB).
+#[tauri::command]
+pub fn lyrics_result(app: AppHandle, lyrics: serde_json::Value) {
+    let _ = app.emit_to(windows::MINI, "lyrics", lyrics);
+}

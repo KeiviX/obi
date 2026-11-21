@@ -9,6 +9,8 @@
     "allow-player-control",
     "allow-window-control",
     "allow-window-drag",
-    "allow-toggle-mini"
+    "allow-toggle-mini",
+    "allow-mini-lyrics",
+    "allow-request-lyrics"
   ]
 }
