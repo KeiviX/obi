@@ -5,7 +5,7 @@ primary_target: "inject/theme.css"
 related_targets: ["inject/core.js","ui/mini.html"]
 ---
 
-# Surface: Orchard shell (main window restyle + mini player)
+# Surface: Obi shell (main window restyle + mini player)
 
 Scope: the frameless main window wrapping music.apple.com (inject/theme.css, inject/core.js) and the mini player (ui/mini.html). Mode: Operate. Glanced at beside dark work apps; frequent actions are what's playing, skip, queue, and toggling the mini player.
 

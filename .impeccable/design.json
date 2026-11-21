@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generatedAt": "2026-11-20T23:55:00Z",
-  "title": "Design System: Orchard",
+  "title": "Design System: Obi",
   "extensions": {
     "colorMeta": {
       "obi-red": { "role": "primary", "displayName": "Obi Red", "canonical": "#d21a2e", "tonalRamp": ["#2e0509", "#520a12", "#7a101b", "#a51525", "#d21a2e", "#e4505f", "#ef8f99", "#f9d2d6"] },
@@ -19,7 +19,7 @@
     },
     "typographyMeta": {
       "display": { "displayName": "Display", "purpose": "Apple page titles (header h1), Dela Gothic One 52px, balanced wrap." },
-      "headline": { "displayName": "Headline", "purpose": "Apple shelf titles; Orchard swaps the face and tracking, Apple keeps the size." },
+      "headline": { "displayName": "Headline", "purpose": "Apple shelf titles; Obi swaps the face and tracking, Apple keeps the size." },
       "title": { "displayName": "Obi Title", "purpose": "Track title on the obi, vertical-rl, read top-down; 18px/25px in the mini player." },
       "body": { "displayName": "Body", "purpose": "Segoe UI system face; Apple's SF Pro is aliased to it weight for weight." },
       "label": { "displayName": "Obi Artist", "purpose": "Artist line on the obi, vertical-rl, in the band's secondary ink." },
@@ -27,7 +27,7 @@
     },
     "shadows": [],
     "motion": [
-      { "name": "o-ease", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Orchard's own easing for every authored transition." },
+      { "name": "o-ease", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Obi's own easing for every authored transition." },
       { "name": "obi-print", "value": "clip-path inset(0 0 100% 0) to inset(0), 720ms o-ease", "purpose": "New track sheet printed over the old one, top to bottom. Instant under reduced motion." },
       { "name": "obi-recolour", "value": "background-color 600ms o-ease", "purpose": "Band colour cross-fade on track change." },
       { "name": "art-fade", "value": "opacity 400ms o-ease", "purpose": "Mini-player artwork fades in on load." },
@@ -43,8 +43,8 @@
       "kind": "custom",
       "refersTo": "obi-band",
       "description": "Full-height printed band with vertical title and artist, re-inked per track; shown here idle.",
-      "html": "<aside class=\"ds-obi\"><div class=\"ds-obi__sheet\"><span class=\"ds-obi__title\">Orchard</span><span class=\"ds-obi__artist\">Nothing playing</span></div><span class=\"ds-obi__time\">1:24</span></aside>",
-      "css": ".ds-obi { position: relative; width: 56px; height: 420px; overflow: hidden; background: #d21a2e; color: #fff4e8; font-family: 'Segoe UI', sans-serif; transition: background-color 600ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-obi__sheet { position: absolute; inset: 0; display: flex; flex-direction: row-reverse; justify-content: center; align-items: flex-start; gap: 2px; padding: 72px 0 112px; } .ds-obi__sheet::before, .ds-obi__sheet::after { content: ''; position: absolute; left: 10px; right: 10px; height: 1px; background: currentColor; opacity: 0.35; } .ds-obi__sheet::before { top: 56px; } .ds-obi__sheet::after { bottom: 96px; } .ds-obi__title, .ds-obi__artist { writing-mode: vertical-rl; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-height: 100%; } .ds-obi__title { font-family: 'Orchard Display', 'Dela Gothic One', 'Segoe UI Black', sans-serif; font-size: 19px; line-height: 26px; letter-spacing: 0.02em; } .ds-obi__artist { font-size: 12px; font-weight: 600; line-height: 18px; letter-spacing: 0.04em; } .ds-obi__time { position: absolute; left: 0; right: 0; bottom: 62px; text-align: center; font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: 0.02em; opacity: 0.85; }"
+      "html": "<aside class=\"ds-obi\"><div class=\"ds-obi__sheet\"><span class=\"ds-obi__title\">Obi</span><span class=\"ds-obi__artist\">Nothing playing</span></div><span class=\"ds-obi__time\">1:24</span></aside>",
+      "css": ".ds-obi { position: relative; width: 56px; height: 420px; overflow: hidden; background: #d21a2e; color: #fff4e8; font-family: 'Segoe UI', sans-serif; transition: background-color 600ms cubic-bezier(0.16, 1, 0.3, 1); } .ds-obi__sheet { position: absolute; inset: 0; display: flex; flex-direction: row-reverse; justify-content: center; align-items: flex-start; gap: 2px; padding: 72px 0 112px; } .ds-obi__sheet::before, .ds-obi__sheet::after { content: ''; position: absolute; left: 10px; right: 10px; height: 1px; background: currentColor; opacity: 0.35; } .ds-obi__sheet::before { top: 56px; } .ds-obi__sheet::after { bottom: 96px; } .ds-obi__title, .ds-obi__artist { writing-mode: vertical-rl; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-height: 100%; } .ds-obi__title { font-family: 'Obi Display', 'Dela Gothic One', 'Segoe UI Black', sans-serif; font-size: 19px; line-height: 26px; letter-spacing: 0.02em; } .ds-obi__artist { font-size: 12px; font-weight: 600; line-height: 18px; letter-spacing: 0.04em; } .ds-obi__time { position: absolute; left: 0; right: 0; bottom: 62px; text-align: center; font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: 0.02em; opacity: 0.85; }"
     },
     {
       "name": "Obi Mini Toggle",
@@ -105,7 +105,7 @@
   ],
   "narrative": {
     "northStar": "The Import Obi",
-    "overview": "Every track gets its own obi. A flat printed band wraps the window's left edge like the paper strip on a Japanese import LP, and it is re-printed for each record in that album's own colours: the artwork's `bgColor` becomes the band, its `textColor1` and `textColor2` become the ink. When nothing plays, the band falls back to Obi Red with cream ink. Everything else sits on a warm sleeve-black ground in warm off-white ink, so the band is the only saturated thing Orchard itself prints.\n\nOrchard restyles a page Apple owns. Its only hooks are Apple's `data-testid` attributes and Apple's own CSS variables (`--pageBG`, `--systemPrimary`, `--navSidebarBG`, `--playerBackground` and siblings), re-pointed at Orchard tokens under `:root.orchard`. Hashed class names are avoided. Anything Orchard cannot reach falls back to Apple's look rather than breaking, and that fallback is intended behaviour, not drift. Apple's editorial content (cards, shelf artwork, their labels and badges) is out of scope: Orchard neither restyles nor imitates it.\n\nThe system is flat print. No glass, no blur, no gradients, no floating pills: the player bar docks flush to the bottom edge with a hairline on top, and depth comes from three tonal steps of warm black. Display type is Dela Gothic One, set vertically on the band and horizontally on page titles; lists and controls stay in the Windows system face.",
+    "overview": "Every track gets its own obi. A flat printed band wraps the window's left edge like the paper strip on a Japanese import LP, and it is re-printed for each record in that album's own colours: the artwork's `bgColor` becomes the band, its `textColor1` and `textColor2` become the ink. When nothing plays, the band falls back to Obi Red with cream ink. Everything else sits on a warm sleeve-black ground in warm off-white ink, so the band is the only saturated thing Obi itself prints.\n\nObi restyles a page Apple owns. Its only hooks are Apple's `data-testid` attributes and Apple's own CSS variables (`--pageBG`, `--systemPrimary`, `--navSidebarBG`, `--playerBackground` and siblings), re-pointed at Obi tokens under `:root.obi`. Hashed class names are avoided. Anything Obi cannot reach falls back to Apple's look rather than breaking, and that fallback is intended behaviour, not drift. Apple's editorial content (cards, shelf artwork, their labels and badges) is out of scope: Obi neither restyles nor imitates it.\n\nThe system is flat print. No glass, no blur, no gradients, no floating pills: the player bar docks flush to the bottom edge with a hairline on top, and depth comes from three tonal steps of warm black. Display type is Dela Gothic One, set vertically on the band and horizontally on page titles; lists and controls stay in the Windows system face.",
     "keyCharacteristics": [
       "A 56px full-height obi on the far left, re-inked per track, with a top-to-bottom print wipe on change.",
       "Warm sleeve-black ground, three tonal steps, warm off-white ink at three opacities.",
@@ -114,7 +114,7 @@
       "Restyle through Apple's test ids and CSS variables only; unreached parts degrade to Apple's own look."
     ],
     "rules": [
-      { "name": "The Record Owns the Colour Rule", "body": "The band's colour is the playing album's `bgColor`; Orchard does not pick, tint or harmonise it. Obi Red exists only for the idle state.", "section": "colors" },
+      { "name": "The Record Owns the Colour Rule", "body": "The band's colour is the playing album's `bgColor`; Obi does not pick, tint or harmonise it. Obi Red exists only for the idle state.", "section": "colors" },
       { "name": "The 4.5:1 Ink Rule", "body": "Per-track inks come from the artwork's `textColor1` / `textColor2`, but any ink below 4.5:1 against its band is replaced by whichever of Sleeve Black or Obi Cream contrasts more. Legibility beats fidelity.", "section": "colors" },
       { "name": "The Warm Alpha Rule", "body": "Every translucent neutral is Warm Ink (`241, 236, 228`) at an alpha: 0.03 even rows, 0.06 hover wash, 0.09 hairline and selection, 0.12 to 0.14 control hover, 0.16 to 0.28 scrollbar thumb, 0.18 progress track, 0.22 control press. Never neutral grey, never Apple's blue.", "section": "colors" },
       { "name": "The Names Only Rule", "body": "Dela Gothic One sets names: track titles, page titles, shelf titles. Never lists, labels, buttons or numerals.", "section": "typography" },
@@ -122,18 +122,18 @@
       { "name": "The Flat Print Rule", "body": "No glass, no blur, no gradient, no drop shadow. Separate surfaces with a tone step or a 1px Hairline.", "section": "elevation" }
     ],
     "dos": [
-      "**Do** restyle Apple's page only through `data-testid` hooks and Apple's CSS variables under `:root.orchard`, and let anything unmatched fall back to Apple's look.",
+      "**Do** restyle Apple's page only through `data-testid` hooks and Apple's CSS variables under `:root.obi`, and let anything unmatched fall back to Apple's look.",
       "**Do** take the band's colour from the playing artwork's `bgColor` and enforce 4.5:1 on its ink, falling back to Sleeve Black or Obi Cream.",
       "**Do** separate surfaces with the three warm-black tone steps and 1px Hairline rules.",
       "**Do** set track, page and shelf titles in Dela Gothic One at weight 400, and everything else in Segoe UI.",
-      "**Do** use `cubic-bezier(0.16, 1, 0.3, 1)` for Orchard's own motion and drop transitions under `prefers-reduced-motion`.",
+      "**Do** use `cubic-bezier(0.16, 1, 0.3, 1)` for Obi's own motion and drop transitions under `prefers-reduced-motion`.",
       "**Do** draw icons as authored inline SVG with `currentColor` strokes."
     ],
     "donts": [
       "**Don't** add glass, backdrop blur, gradients or drop shadows to any surface.",
       "**Don't** float the player bar as a pill; it docks flush and square.",
       "**Don't** tint, crop or overlay album artwork at rest; the scrim is interaction-only.",
-      "**Don't** restyle or imitate Apple's editorial cards and their labels, or present Apple branding as Orchard's identity.",
+      "**Don't** restyle or imitate Apple's editorial cards and their labels, or present Apple branding as Obi's identity.",
       "**Don't** hook hashed Apple class names when a `data-testid` or Apple variable exists.",
       "**Don't** use Apple's blue or a neutral grey for icons or translucent fills; use Warm Ink at an alpha."
     ]

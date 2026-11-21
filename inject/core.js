@@ -1,8 +1,8 @@
-// Orchard core: injected into music.apple.com on every page load (main frame only).
+// Obi core: injected into music.apple.com on every page load (main frame only).
 // Builds the obi band and window chrome, hooks the page's own MusicKit instance,
 // and reports playback to the Rust side.
 (() => {
-  if (window.__orchard) return;
+  if (window.__obi) return;
 
   const ipc = () => window.__TAURI_INTERNALS__;
   const invoke = (cmd, args = {}) =>
@@ -10,7 +10,7 @@
   const log = (level, msg) =>
     invoke("log", { level, msg: String(msg) }).catch(() => {});
 
-  const orchard = (window.__orchard = { invoke, log, mk: null });
+  const app = (window.__obi = { invoke, log, mk: null });
 
   const OBI_IDLE = { bg: "#D21A2E", ink: "#FFF4E8" };
   const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
@@ -47,10 +47,10 @@
 
   // --- Stylesheet -----------------------------------------------------------
   const addCss = () => {
-    if (document.getElementById("orchard-css")) return;
+    if (document.getElementById("obi-css")) return;
     const style = document.createElement("style");
-    style.id = "orchard-css";
-    style.textContent = window.__ORCHARD_CSS__ || "";
+    style.id = "obi-css";
+    style.textContent = window.__OBI_CSS__ || "";
     (document.head || document.documentElement).appendChild(style);
   };
 
@@ -58,9 +58,9 @@
   let obi, obiTime, maxBtn, lastTrackKey = null;
 
   const buildChrome = () => {
-    if (document.getElementById("orchard-chrome")) return;
+    if (document.getElementById("obi-chrome")) return;
     const root = document.createElement("div");
-    root.id = "orchard-chrome";
+    root.id = "obi-chrome";
     root.innerHTML = `
       <aside class="o-obi" aria-label="Now playing" data-o-drag>
         <div class="o-obi__sheets" data-o-drag></div>
@@ -74,7 +74,7 @@
         <button type="button" data-o-win="close" class="o-winctl__close" aria-label="Close">${ICONS.close}</button>
       </div>`;
     document.body.appendChild(root);
-    document.documentElement.classList.add("orchard");
+    document.documentElement.classList.add("obi");
 
     obi = root.querySelector(".o-obi");
     obiTime = root.querySelector(".o-obi__time");
@@ -104,7 +104,7 @@
     if (!maxBtn) return;
     maxBtn.innerHTML = isMax ? ICONS.restore : ICONS.maximize;
     maxBtn.setAttribute("aria-label", isMax ? "Restore" : "Maximize");
-    document.documentElement.classList.toggle("orchard--maximized", !!isMax);
+    document.documentElement.classList.toggle("obi--maximized", !!isMax);
   };
 
   // Each track gets its own obi: a new band is printed over the old one, top to bottom.
@@ -130,7 +130,7 @@
     const title = document.createElement("span");
     title.className = "o-obi__title";
     title.dataset.oDrag = "";
-    title.textContent = track ? track.title : "Orchard";
+    title.textContent = track ? track.title : "Obi";
     const artist = document.createElement("span");
     artist.className = "o-obi__artist";
     artist.dataset.oDrag = "";
@@ -161,6 +161,49 @@
   } else {
     ready();
   }
+
+  // --- Update notice: Rust downloads updates in the background; offer the restart. --
+  let updateShown = false;
+  const showUpdate = (u) => {
+    if (updateShown || !u || !document.body) return;
+    updateShown = true;
+    const card = document.createElement("div");
+    card.className = "o-update";
+    card.setAttribute("role", "status");
+    const text = document.createElement("p");
+    text.className = "o-update__text";
+    text.textContent = `Obi ${u.version} is ready`;
+    const sub = document.createElement("p");
+    sub.className = "o-update__sub";
+    sub.textContent = "Restart to finish updating. Playback stops for a moment.";
+    const actions = document.createElement("div");
+    actions.className = "o-update__actions";
+    const later = document.createElement("button");
+    later.type = "button";
+    later.className = "o-update__later";
+    later.textContent = "Later";
+    later.addEventListener("click", () => card.remove());
+    const go = document.createElement("button");
+    go.type = "button";
+    go.className = "o-update__go";
+    go.textContent = "Restart now";
+    go.addEventListener("click", () => {
+      go.disabled = true;
+      go.textContent = "Restarting…";
+      invoke("install_update").catch((e) => {
+        go.disabled = false;
+        go.textContent = "Restart now";
+        sub.textContent = "The update couldn't install. Try again, or download it from GitHub.";
+        log("error", "install_update: " + e);
+      });
+    });
+    actions.append(later, go);
+    card.append(text, sub, actions);
+    document.body.appendChild(card);
+  };
+  const pollUpdate = () =>
+    invoke("update_status").then((u) => (u ? showUpdate(u) : setTimeout(pollUpdate, 60000))).catch(() => {});
+  setTimeout(pollUpdate, 5000);
 
   // Ctrl+M toggles the mini player.
   addEventListener("keydown", (e) => {
@@ -207,8 +250,8 @@
     };
   };
 
-  orchard.control = (action, value) => {
-    const mk = orchard.mk;
+  app.control = (action, value) => {
+    const mk = app.mk;
     if (!mk) return;
     switch (action) {
       case "toggle": return mk.isPlaying ? mk.pause() : mk.play();
@@ -245,32 +288,32 @@
     mk.addEventListener(E.playbackStateDidChange || "playbackStateDidChange", (e) => {
       const s = e && e.state !== undefined ? e.state : mk.playbackState;
       const name = stateName(s);
-      document.documentElement.classList.toggle("orchard--playing", name === "playing");
+      document.documentElement.classList.toggle("obi--playing", name === "playing");
       invoke("playback_state", { state: name }).catch(() => {});
     });
     mk.addEventListener(E.authorizationStatusDidChange || "authorizationStatusDidChange", () => {
       log("info", "signed in: " + !!mk.isAuthorized);
     });
 
-    orchard.mk = mk;
+    app.mk = mk;
     if (mk.nowPlayingItem) sendTrack();
 
     // Dev: open the mini player through the same IPC path as the obi button.
-    if (window.__ORCHARD_OPEN_MINI__) {
+    if (window.__OBI_OPEN_MINI__) {
       setTimeout(() => {
         const btn = document.querySelector(".o-obi__mini");
         if (btn) btn.click();
       }, 6000);
     }
 
-    // Dev: play a chart song preview (ORCHARD_DEMO=1) to exercise the obi without signing in.
-    if (window.__ORCHARD_DEMO__) {
+    // Dev: play a chart song preview (OBI_DEMO=1) to exercise the obi without signing in.
+    if (window.__OBI_DEMO__) {
       setTimeout(async () => {
         try {
           const sf = mk.storefrontId || "us";
           const res = await mk.api.music(`/v1/catalog/${sf}/charts`, { types: "songs", limit: 3 });
           const songs = res.data.results.songs[0].data;
-          const song = songs[Number(window.__ORCHARD_DEMO__) % songs.length] || songs[0];
+          const song = songs[Number(window.__OBI_DEMO__) % songs.length] || songs[0];
           await mk.setQueue({ song: song.id, startPlaying: true });
           log("info", "demo playing " + song.attributes.name);
         } catch (e) {
@@ -281,8 +324,8 @@
     log("info", `MusicKit ${window.MusicKit.version || "?"} attached, signed in: ${!!mk.isAuthorized}`);
   };
 
-  // --- Dev: dump page structure (run with ORCHARD_DEBUG=1) -------------------
-  if (window.__ORCHARD_DEBUG__) {
+  // --- Dev: dump page structure (run with OBI_DEBUG=1) -------------------
+  if (window.__OBI_DEBUG__) {
     window.addEventListener("load", () => setTimeout(() => {
       const lines = [];
       const walk = (el, depth) => {
@@ -324,6 +367,12 @@
       const painted = document.elementsFromPoint(150, 400).map((e) =>
         `${e.tagName.toLowerCase()}.${String(e.className).split(" ")[0]} bg=${getComputedStyle(e).backgroundColor}`);
       log("paint", painted.join(" | "));
+      // What sits under the window controls (top-right corner)?
+      const corner = document.elementsFromPoint(innerWidth - 40, 26).slice(0, 8).map((e) => {
+        const r = e.getBoundingClientRect(), s = getComputedStyle(e);
+        return `${e.tagName.toLowerCase()}${e.dataset.testid ? `[${e.dataset.testid}]` : ""}.${String(e.className).split(" ").slice(0, 2).join(".")} pos=${s.position} top=${s.top} right=${s.right} z=${s.zIndex} [${Math.round(r.left)},${Math.round(r.top)} ${Math.round(r.width)}x${Math.round(r.height)}]`;
+      });
+      log("corner", "\n" + corner.join("\n"));
       const vars = [];
       const cs = getComputedStyle(document.documentElement);
       for (const p of cs) if (p.startsWith("--")) vars.push(`${p}: ${cs.getPropertyValue(p).trim()}`);

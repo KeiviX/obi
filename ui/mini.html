@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Orchard</title>
+<title>Obi</title>
 <style>
   @font-face {
-    font-family: "Orchard Display";
+    font-family: "Obi Display";
     src: url("fonts/DelaGothicOne-latin.woff2") format("woff2");
     font-display: block;
   }
@@ -18,7 +18,7 @@
     --obi-ink: #fff4e8;
     --obi-w: 56px;
     --o-ease: cubic-bezier(0.16, 1, 0.3, 1);
-    --o-display: "Orchard Display", "Segoe UI Black", sans-serif;
+    --o-display: "Obi Display", "Segoe UI Black", sans-serif;
     color-scheme: dark;
   }
   * { box-sizing: border-box; }
@@ -283,7 +283,7 @@
     sheet.style.setProperty("--sheet-ink-2", ink2);
     const t = document.createElement("span");
     t.className = "title"; t.dataset.drag = "";
-    t.textContent = track ? track.title : "Orchard";
+    t.textContent = track ? track.title : "Obi";
     const a = document.createElement("span");
     a.className = "artist"; a.dataset.drag = "";
     a.textContent = track ? track.artist : "Nothing playing";
@@ -306,7 +306,7 @@
     printObi(track);
     mini.classList.toggle("has-track", !!track);
     mini.classList.toggle("no-track", !track);
-    document.title = track ? `${track.title} · ${track.artist}` : "Orchard";
+    document.title = track ? `${track.title} · ${track.artist}` : "Obi";
     if (track && track.artworkUrl) {
       if (art && art.src === track.artworkUrl) return;
       const next = new Image();

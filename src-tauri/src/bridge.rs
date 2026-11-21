@@ -46,8 +46,8 @@ pub fn log(level: String, msg: String) {
 pub fn now_playing(app: AppHandle, player: State<PlayerState>, track: Option<Track>) {
     if let Some(win) = app.get_webview_window(windows::MAIN) {
         let title = match &track {
-            Some(t) => format!("{} · {} · Orchard", t.title, t.artist),
-            None => "Orchard".to_string(),
+            Some(t) => format!("{} · {} · Obi", t.title, t.artist),
+            None => "Obi".to_string(),
         };
         let _ = win.set_title(&title);
     }
@@ -57,7 +57,7 @@ pub fn now_playing(app: AppHandle, player: State<PlayerState>, track: Option<Tra
 
 #[tauri::command]
 pub fn playback_state(app: AppHandle, player: State<PlayerState>, state: String) {
-    println!("[orchard] playback state: {state}");
+    println!("[obi] playback state: {state}");
     let _ = app.emit("playback-state", &state);
     player.0.lock().unwrap().state = state;
 }
@@ -87,7 +87,7 @@ pub fn player_control(app: AppHandle, action: String, value: Option<f64>) -> Res
         .ok_or("main window missing")?;
     let value = value.map_or("null".to_string(), |v| v.to_string());
     main.eval(&format!(
-        "window.__orchard && window.__orchard.control({:?}, {value})",
+        "window.__obi && window.__obi.control({:?}, {value})",
         action
     ))
     .map_err(|e| e.to_string())

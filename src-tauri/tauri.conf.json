@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Orchard",
+  "productName": "Obi",
   "version": "0.1.0",
-  "identifier": "dev.orchard.app",
+  "identifier": "app.obi.player",
   "build": {
     "frontendDist": "../ui"
   },
@@ -15,12 +15,27 @@
   },
   "bundle": {
     "active": true,
-    "targets": ["nsis", "msi"],
+    "targets": [
+      "nsis",
+      "msi"
+    ],
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
       "icons/128x128@2x.png",
       "icons/icon.ico"
-    ]
+    ],
+    "createUpdaterArtifacts": true
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEYwQTBFMDNBN0UzNzcyMDUKUldRRmNqZCtPdUNnOEVqMHA1alp3cW85enpBTC9yaGE4ZW9iK3F4RUhQdVUrNms4ZXJ0aFdtdjcK",
+      "endpoints": [
+        "https://github.com/KeiviX/obi/releases/latest/download/latest.json"
+      ],
+      "windows": {
+        "installMode": "passive"
+      }
+    }
   }
 }

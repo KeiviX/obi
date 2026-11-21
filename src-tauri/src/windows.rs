@@ -20,19 +20,19 @@ const GROUND: Color = Color(20, 18, 19, 255);
 fn init_script() -> String {
     let font = base64::engine::general_purpose::STANDARD.encode(DISPLAY_FONT);
     let css = format!(
-        "@font-face{{font-family:'Orchard Display';src:url(data:font/woff2;base64,{font}) format('woff2');font-display:block}}\n{THEME_CSS}"
+        "@font-face{{font-family:'Obi Display';src:url(data:font/woff2;base64,{font}) format('woff2');font-display:block}}\n{THEME_CSS}"
     );
     let css = serde_json::to_string(&css).expect("css serializes");
-    // Dev hooks: ORCHARD_DEBUG dumps page structure, ORCHARD_DEMO=<n> plays a chart preview.
-    let debug = std::env::var_os("ORCHARD_DEBUG").is_some();
-    // ORCHARD_OPEN_MINI goes through the same page -> IPC path as clicking the obi button.
-    let open_mini = std::env::var_os("ORCHARD_OPEN_MINI").is_some();
-    let demo = std::env::var("ORCHARD_DEMO")
+    // Dev hooks: OBI_DEBUG dumps page structure, OBI_DEMO=<n> plays a chart preview.
+    let debug = std::env::var_os("OBI_DEBUG").is_some();
+    // OBI_OPEN_MINI goes through the same page -> IPC path as clicking the obi button.
+    let open_mini = std::env::var_os("OBI_OPEN_MINI").is_some();
+    let demo = std::env::var("OBI_DEMO")
         .ok()
         .and_then(|v| v.parse::<u32>().ok())
         .map_or("false".to_string(), |n| n.to_string());
     format!(
-        "window.__ORCHARD_CSS__ = {css};\nwindow.__ORCHARD_DEBUG__ = {debug};\nwindow.__ORCHARD_DEMO__ = {demo};\nwindow.__ORCHARD_OPEN_MINI__ = {open_mini};\n{CORE_JS}"
+        "window.__OBI_CSS__ = {css};\nwindow.__OBI_DEBUG__ = {debug};\nwindow.__OBI_DEMO__ = {demo};\nwindow.__OBI_OPEN_MINI__ = {open_mini};\n{CORE_JS}"
     )
 }
 
@@ -61,9 +61,14 @@ fn tint_border(win: &tauri::WebviewWindow) {
 }
 
 pub fn create_main(app: &AppHandle) -> tauri::Result<()> {
-    let url = APPLE_MUSIC_URL.parse().expect("valid url");
+    // Dev: OBI_URL opens a specific music.apple.com page (only that host is accepted).
+    let start = std::env::var("OBI_URL")
+        .ok()
+        .filter(|u| u.starts_with("https://music.apple.com/"))
+        .unwrap_or_else(|| APPLE_MUSIC_URL.to_string());
+    let url = start.parse().expect("valid url");
     let win = WebviewWindowBuilder::new(app, MAIN, WebviewUrl::External(url))
-        .title("Orchard")
+        .title("Obi")
         .inner_size(1280.0, 820.0)
         .min_inner_size(820.0, 560.0)
         .decorations(false)
@@ -85,7 +90,7 @@ pub fn toggle_mini(app: &AppHandle) -> tauri::Result<()> {
         return Ok(());
     }
     let mini = WebviewWindowBuilder::new(app, MINI, WebviewUrl::App("mini.html".into()))
-        .title("Orchard")
+        .title("Obi")
         .inner_size(356.0, 300.0)
         .resizable(false)
         .maximizable(false)

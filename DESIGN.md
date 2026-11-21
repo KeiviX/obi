@@ -1,5 +1,5 @@
 ---
-name: Orchard
+name: Obi
 description: An Apple Music client for Windows whose window wears a printed obi, re-inked for every record.
 colors:
   obi-red: "#d21a2e"
@@ -16,17 +16,17 @@ colors:
   windows-close-red: "#c42b1c"
 typography:
   display:
-    fontFamily: "Orchard Display (Dela Gothic One), Segoe UI Black, sans-serif"
+    fontFamily: "Obi Display (Dela Gothic One), Segoe UI Black, sans-serif"
     fontSize: "52px"
     fontWeight: 400
     lineHeight: 1.02
     letterSpacing: "0"
   headline:
-    fontFamily: "Orchard Display (Dela Gothic One), Segoe UI Black, sans-serif"
+    fontFamily: "Obi Display (Dela Gothic One), Segoe UI Black, sans-serif"
     fontWeight: 400
     letterSpacing: "0.01em"
   title:
-    fontFamily: "Orchard Display (Dela Gothic One), Segoe UI Black, sans-serif"
+    fontFamily: "Obi Display (Dela Gothic One), Segoe UI Black, sans-serif"
     fontSize: "19px"
     fontWeight: 400
     lineHeight: "26px"
@@ -111,15 +111,15 @@ components:
     padding: "8px 14px"
 ---
 
-# Design System: Orchard
+# Design System: Obi
 
 ## Overview
 
 **Creative North Star: "The Import Obi"**
 
-Every track gets its own obi. A flat printed band wraps the window's left edge like the paper strip on a Japanese import LP, and it is re-printed for each record in that album's own colours: the artwork's `bgColor` becomes the band, its `textColor1` and `textColor2` become the ink. When nothing plays, the band falls back to Obi Red with cream ink. Everything else sits on a warm sleeve-black ground in warm off-white ink, so the band is the only saturated thing Orchard itself prints.
+Every track gets its own obi. A flat printed band wraps the window's left edge like the paper strip on a Japanese import LP, and it is re-printed for each record in that album's own colours: the artwork's `bgColor` becomes the band, its `textColor1` and `textColor2` become the ink. When nothing plays, the band falls back to Obi Red with cream ink. Everything else sits on a warm sleeve-black ground in warm off-white ink, so the band is the only saturated thing Obi itself prints.
 
-Orchard restyles a page Apple owns. Its only hooks are Apple's `data-testid` attributes and Apple's own CSS variables (`--pageBG`, `--systemPrimary`, `--navSidebarBG`, `--playerBackground` and siblings), re-pointed at Orchard tokens under `:root.orchard`. Hashed class names are avoided. Anything Orchard cannot reach falls back to Apple's look rather than breaking, and that fallback is intended behaviour, not drift. Apple's editorial content (cards, shelf artwork, their labels and badges) is out of scope: Orchard neither restyles nor imitates it.
+Obi restyles a page Apple owns. Its only hooks are Apple's `data-testid` attributes and Apple's own CSS variables (`--pageBG`, `--systemPrimary`, `--navSidebarBG`, `--playerBackground` and siblings), re-pointed at Obi tokens under `:root.obi`. Hashed class names are avoided. Anything Obi cannot reach falls back to Apple's look rather than breaking, and that fallback is intended behaviour, not drift. Apple's editorial content (cards, shelf artwork, their labels and badges) is out of scope: Obi neither restyles nor imitates it.
 
 The system is flat print. No glass, no blur, no gradients, no floating pills: the player bar docks flush to the bottom edge with a hairline on top, and depth comes from three tonal steps of warm black. Display type is Dela Gothic One, set vertically on the band and horizontally on page titles; lists and controls stay in the Windows system face.
 
@@ -132,7 +132,7 @@ The system is flat print. No glass, no blur, no gradients, no floating pills: th
 
 ## Colors
 
-A near-monochrome warm-black world with one printed band whose colour belongs to the record, not to Orchard.
+A near-monochrome warm-black world with one printed band whose colour belongs to the record, not to Obi.
 
 ### Primary
 - **Obi Red** (`obi-red`): the band's idle colour, shown when nothing is playing, and the text-selection highlight. While a track plays the band takes the artwork's `bgColor` instead; Obi Red is the fallback, not a permanent accent.
@@ -151,7 +151,7 @@ A near-monochrome warm-black world with one printed band whose colour belongs to
 - **Windows Close Red** (`windows-close-red`): the close button's hover, matching the Windows 11 caption convention. Used nowhere else.
 
 ### Named Rules
-**The Record Owns the Colour Rule.** The band's colour is the playing album's `bgColor`; Orchard does not pick, tint or harmonise it. Obi Red exists only for the idle state.
+**The Record Owns the Colour Rule.** The band's colour is the playing album's `bgColor`; Obi does not pick, tint or harmonise it. Obi Red exists only for the idle state.
 
 **The 4.5:1 Ink Rule.** Per-track inks come from the artwork's `textColor1` / `textColor2`, but any ink below 4.5:1 against its band is replaced by whichever of Sleeve Black or Obi Cream contrasts more. Legibility beats fidelity.
 
@@ -159,14 +159,14 @@ A near-monochrome warm-black world with one printed band whose colour belongs to
 
 ## Typography
 
-**Display Font:** Dela Gothic One, registered as "Orchard Display" (with Segoe UI Black, then sans-serif)
+**Display Font:** Dela Gothic One, registered as "Obi Display" (with Segoe UI Black, then sans-serif)
 **Body Font:** Segoe UI, the Windows system face (with sans-serif). Apple's "SF Pro" is aliased to Segoe UI weight for weight via `@font-face local()`, so Apple's own text renders in Segoe UI instead of falling back to Arial.
 
 **Character:** a heavy, compressed-feeling Japanese-poster gothic for names, against a plain system face that keeps lists quiet and native.
 
 ### Hierarchy
 - **Display** (400, 52px, 1.02, balanced wrap): Apple page titles (the page header `h1`, e.g. "Home").
-- **Headline** (400, Apple's size, 0.01em): Apple shelf titles ("Top Picks for You", "Recently Played"); Orchard changes only the face and tracking.
+- **Headline** (400, Apple's size, 0.01em): Apple shelf titles ("Top Picks for You", "Recently Played"); Obi changes only the face and tracking.
 - **Title** (400, 19px / 26px, 0.02em, vertical-rl): the track title on the obi, read top-down; 18px / 25px in the mini player.
 - **Body** (400, 13px, 1.3): mini-player base text; Apple's own body text in the main window via the SF Pro alias.
 - **Label** (600, 12px / 18px, 0.04em, vertical-rl): the artist line on the obi, set in the band's secondary ink.
@@ -189,7 +189,7 @@ The player bar docks flush to the bottom and fills Apple's grid column (it does 
 
 ## Elevation & Depth
 
-Flat. Orchard uses no shadows, no backdrop blur and no gradients; it actively strips Apple's (`box-shadow: none`, `backdrop-filter: none` on the player and its descendants, and on the navigation). Depth is three tonal steps of warm black (ground, sidebar, raised) plus Hairline rules. The only layering is the obi itself (fixed above the page) and the mini-player scrim, which appears only on interaction.
+Flat. Obi uses no shadows, no backdrop blur and no gradients; it actively strips Apple's (`box-shadow: none`, `backdrop-filter: none` on the player and its descendants, and on the navigation). Depth is three tonal steps of warm black (ground, sidebar, raised) plus Hairline rules. The only layering is the obi itself (fixed above the page) and the mini-player scrim, which appears only on interaction.
 
 ### Named Rules
 **The Flat Print Rule.** No glass, no blur, no gradient, no drop shadow. Separate surfaces with a tone step or a 1px Hairline.
@@ -202,7 +202,7 @@ Square by default. The obi, the docked player bar, window controls, the sleeve a
 
 ### Obi Band (signature)
 A flat, full-height printed band, re-printed per track.
-- **Colour:** the track's artwork `bgColor`, ink per the 4.5:1 Ink Rule; idle is Obi Red with Obi Cream and the text "Orchard / Nothing playing".
+- **Colour:** the track's artwork `bgColor`, ink per the 4.5:1 Ink Rule; idle is Obi Red with Obi Cream and the text "Obi / Nothing playing".
 - **Rules:** two 1px rules in `currentColor` at 35% opacity, inset 10px.
 - **Motion:** on track change a new sheet is laid over the old one and revealed top to bottom with `clip-path: inset(0 0 100% 0)` to `inset(0)` over 720ms on `cubic-bezier(0.16, 1, 0.3, 1)`; the band colour cross-fades over 600ms. With reduced motion the sheet swaps instantly.
 - **Hover title:** the sheet carries a native tooltip "Title · Artist" for truncated names.
@@ -226,17 +226,17 @@ Full-bleed artwork, never tinted at rest; it fades in over 400ms on load. Contro
 ## Do's and Don'ts
 
 ### Do:
-- **Do** restyle Apple's page only through `data-testid` hooks and Apple's CSS variables under `:root.orchard`, and let anything unmatched fall back to Apple's look.
+- **Do** restyle Apple's page only through `data-testid` hooks and Apple's CSS variables under `:root.obi`, and let anything unmatched fall back to Apple's look.
 - **Do** take the band's colour from the playing artwork's `bgColor` and enforce 4.5:1 on its ink, falling back to Sleeve Black or Obi Cream.
 - **Do** separate surfaces with the three warm-black tone steps and 1px Hairline rules.
 - **Do** set track, page and shelf titles in Dela Gothic One at weight 400, and everything else in Segoe UI.
-- **Do** use `cubic-bezier(0.16, 1, 0.3, 1)` for Orchard's own motion and drop transitions under `prefers-reduced-motion`.
+- **Do** use `cubic-bezier(0.16, 1, 0.3, 1)` for Obi's own motion and drop transitions under `prefers-reduced-motion`.
 - **Do** draw icons as authored inline SVG with `currentColor` strokes.
 
 ### Don't:
 - **Don't** add glass, backdrop blur, gradients or drop shadows to any surface.
 - **Don't** float the player bar as a pill; it docks flush and square.
 - **Don't** tint, crop or overlay album artwork at rest; the scrim is interaction-only.
-- **Don't** restyle or imitate Apple's editorial cards and their labels, or present Apple branding as Orchard's identity.
+- **Don't** restyle or imitate Apple's editorial cards and their labels, or present Apple branding as Obi's identity.
 - **Don't** hook hashed Apple class names when a `data-testid` or Apple variable exists.
 - **Don't** use Apple's blue or a neutral grey for icons or translucent fills; use Warm Ink at an alpha.

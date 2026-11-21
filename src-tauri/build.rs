@@ -1,4 +1,4 @@
-/// Orchard's own IPC commands. Declaring them here generates `allow-<command>`
+/// Obi's own IPC commands. Declaring them here generates `allow-<command>`
 /// permissions, which the files in `capabilities/` grant per window.
 /// Tauri blocks every custom command that isn't granted.
 const COMMANDS: &[&str] = &[
@@ -11,6 +11,8 @@ const COMMANDS: &[&str] = &[
     "window_control",
     "window_drag",
     "toggle_mini",
+    "update_status",
+    "install_update",
 ];
 
 fn main() {

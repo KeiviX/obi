@@ -2,6 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod bridge;
+mod updater;
 mod windows;
 
 use tauri::{Manager, WindowEvent};
@@ -15,7 +16,9 @@ fn main() {
                 .with_state_flags(StateFlags::all() & !StateFlags::VISIBLE)
                 .build(),
         )
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .manage(bridge::PlayerState::default())
+        .manage(updater::PendingUpdate::default())
         .invoke_handler(tauri::generate_handler![
             bridge::log,
             bridge::now_playing,
@@ -26,9 +29,13 @@ fn main() {
             bridge::window_control,
             bridge::window_drag,
             bridge::toggle_mini,
+            updater::update_status,
+            updater::install_update,
         ])
         .setup(|app| {
             windows::create_main(app.handle())?;
+            // Look for a newer release in the background; never blocks startup.
+            tauri::async_runtime::spawn(updater::check_and_download(app.handle().clone()));
             Ok(())
         })
         .on_window_event(|window, event| {
@@ -43,5 +50,5 @@ fn main() {
             }
         })
         .run(tauri::generate_context!())
-        .expect("error while running Orchard");
+        .expect("error while running Obi");
 }

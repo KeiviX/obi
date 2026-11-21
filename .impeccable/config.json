@@ -11,7 +11,7 @@
       },
       {
         "rule": "design-system-font",
-        "value": "orchard display",
+        "value": "obi display",
         "createdAt": "2026-11-20T23:50:29.712Z",
         "reason": "Claude: family name for Dela Gothic One, documented in DESIGN.md"
       },
